@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plataforma CCT</title>
+<meta name="theme-color" content="#1B2126">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CCT">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<script src="config.js"></script>
+</head>
+<body>
+
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: papel de estande — faixa de cabeçalho, abas fixas, painéis em coluna única no celular e duas colunas no desktop */
+:root{
+  --paper:#ECEFEA; --card:#FAFBF8; --ink:#1B2126; --ink2:#4E5960; --ink3:#7A858B; --line:#D2D8D1;
+  --accent:#C2410C; --accent-ink:#FFFFFF; --heat:#24506E;
+  --sA:#8C6D12; --sB:#2F5D7C; --sC:#56692A; --sD:#80493A;
+  --up:#23784A; --down:#B42318; --warn:#A15C07;
+  --f-disp:"Saira Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12171B; --card:#1A2127; --ink:#E5EAE6; --ink2:#AEB8BD; --ink3:#7E8A90; --line:#2D363D;
+  --accent:#F07B3F; --accent-ink:#1B1006; --heat:#6FA8D0;
+  --sA:#D6B24C; --sB:#77A7C9; --sC:#A3B86A; --sD:#D08B76;
+  --up:#55C285; --down:#F0786A; --warn:#E3A23F; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#12171B; --card:#1A2127; --ink:#E5EAE6; --ink2:#AEB8BD; --ink3:#7E8A90; --line:#2D363D;
+  --accent:#F07B3F; --accent-ink:#1B1006; --heat:#6FA8D0;
+  --sA:#D6B24C; --sB:#77A7C9; --sC:#A3B86A; --sD:#D08B76;
+  --up:#55C285; --down:#F0786A; --warn:#E3A23F; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-disp);font-weight:700;letter-spacing:.01em;line-height:1.1;margin:0;text-wrap:balance}
+h2{font-size:1.65rem} h3{font-size:1.2rem}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3);font-weight:600}
+.muted{color:var(--ink2)} .small{font-size:.85rem}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* cabeçalho */
+.top{background:var(--card);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;padding-block:14px}
+.brand-mark{width:52px;height:52px;flex:none;display:grid;place-items:center}
+.brand-mark img{width:52px;height:52px;object-fit:contain}
+.brand h1{font-size:1.6rem;text-transform:uppercase}
+.brand p{margin:0;color:var(--ink2);font-size:.82rem}
+.top .cycle{margin-left:auto;text-align:right}
+.top .cycle b{font-family:var(--f-disp);font-size:1.4rem;display:block;line-height:1}
+.mode{display:inline-block;margin-top:4px;font-size:.7rem;padding:1px 7px;border-radius:99px;border:1px solid var(--line);color:var(--ink2)}
+
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav.tabs a{flex:none;padding:12px 12px 10px;text-decoration:none;color:var(--ink2);font-weight:600;font-size:.92rem;border-bottom:3px solid transparent;white-space:nowrap}
+nav.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs a.cta{color:var(--accent)}
+
+main{padding-block:22px 64px}
+.view{display:grid;gap:20px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel>header{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin-bottom:12px}
+.panel>header .sp{margin-left:auto}
+.cols{display:grid;gap:20px;grid-template-columns:1fr}
+@media(min-width:900px){.cols{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}}
+
+/* séries */
+.series{display:flex;gap:6px;flex-wrap:wrap}
+.chip-s{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:6px 14px;font-weight:700;font-family:var(--f-disp);font-size:1rem;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip-s i{width:9px;height:9px;border-radius:50%;background:var(--sc)}
+.chip-s[aria-pressed="true"]{background:var(--sc);border-color:var(--sc);color:var(--card)}
+.chip-s[aria-pressed="true"] i{background:var(--card)}
+.sbadge{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:4px;background:var(--sc);color:var(--card);font-family:var(--f-disp);font-weight:700;font-size:.9rem;padding:0 5px}
+
+.facts{display:flex;flex-wrap:wrap;gap:8px 28px;padding:4px 0 2px}
+.facts div{min-width:0}
+.facts b{display:block;font-family:var(--f-disp);font-size:1.5rem;line-height:1.1}
+
+/* tabelas */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%}
+th{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);font-weight:600;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.r,th.r{text-align:right}
+.rk tbody tr{cursor:pointer}
+.rk tbody tr:hover td{background:color-mix(in oklab,var(--paper) 60%,transparent)}
+.pos{font-family:var(--f-disp);font-weight:700;font-size:1.15rem;width:36px}
+.nm{font-weight:600;white-space:nowrap}
+.nm small{display:block;font-weight:400;color:var(--ink3);font-family:var(--f-mono);font-size:.72rem}
+tr.zone td{padding:5px 8px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-bottom:none;cursor:default}
+tr.zone.up td{color:var(--up);background:color-mix(in oklab,var(--up) 9%,transparent)}
+tr.zone.dn td{color:var(--down);background:color-mix(in oklab,var(--down) 9%,transparent)}
+tr.inUp td:first-child{box-shadow:inset 3px 0 var(--up)}
+tr.inDn td:first-child{box-shadow:inset 3px 0 var(--down)}
+.big{font-family:var(--f-mono);font-weight:600;font-size:1.02rem}
+
+/* mapa */
+.heat td,.heat th{padding:0;border:none}
+.heat th{padding:4px 2px;text-align:center}
+.heat th.n{text-align:left;padding-right:10px}
+.heat td.n{font-weight:600;font-size:.86rem;padding:2px 10px 2px 0;white-space:nowrap}
+.hc{height:30px;min-width:40px;margin:1px;display:grid;place-items:center;font-family:var(--f-mono);font-size:.78rem;border-radius:3px}
+.hc.f{background:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in oklab,var(--line) 70%,transparent) 4px 5px);color:var(--ink3)}
+.heat tfoot td{font-family:var(--f-mono);font-size:.74rem;text-align:center;color:var(--ink2);padding:4px 2px}
+.heat tfoot td.n{text-align:left;font-family:var(--f-body)}
+.flag{color:var(--warn);font-weight:700}
+.legend{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--ink2)}
+.legend span{width:18px;height:10px;border-radius:2px;display:inline-block}
+
+.insights{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.insights li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
+.insights .ic{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-disp);font-weight:700;background:var(--paper);border:1px solid var(--line);font-size:.9rem}
+
+/* perfil */
+.prof-head{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center}
+.prof-head h2{font-size:2.1rem}
+.status{font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em}
+.status.up{background:color-mix(in oklab,var(--up) 15%,transparent);color:var(--up)}
+.status.dn{background:color-mix(in oklab,var(--down) 15%,transparent);color:var(--down)}
+.status.mid{background:var(--paper);color:var(--ink2)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.kpis div{background:var(--card);padding:10px 12px}
+.kpis b{display:block;font-family:var(--f-mono);font-size:1.3rem;font-weight:600}
+.kpis small{color:var(--ink3);font-size:.75rem}
+.sw{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:700px){.sw{grid-template-columns:1fr 1fr}}
+.sw h3{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sw h3::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c)}
+.sw ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.sw li b{display:block}
+.sw li p{margin:2px 0 0;color:var(--ink2);font-size:.88rem}
+.ind{display:grid;gap:9px}
+.ind .row{display:grid;grid-template-columns:minmax(110px,150px) 1fr 44px;gap:10px;align-items:center;font-size:.86rem}
+.bar{height:10px;background:var(--paper);border-radius:99px;position:relative;overflow:hidden;border:1px solid var(--line)}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.bar.plain::after{display:none}
+.bar::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--ink3);opacity:.6}
+
+/* formulários */
+.field{display:grid;gap:4px;min-width:0}
+.field label{font-size:.78rem;font-weight:600;color:var(--ink2)}
+input[type=text],input[type=number],input[type=month],select,textarea{background:var(--card);border:1px solid var(--line);border-radius:5px;padding:9px 10px;width:100%;min-width:0}
+textarea{min-height:70px;resize:vertical}
+.grid2{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:5px;padding:9px 14px;font-weight:600;cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.fund{display:flex;flex-wrap:wrap;gap:6px}
+.fund button,.tag{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 11px;font-size:.82rem;cursor:pointer}
+.fund button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.tag{cursor:default;background:var(--paper)}
+
+/* lançamento */
+.roster{display:grid;gap:6px}
+.roster button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:5px;padding:10px 12px;cursor:pointer}
+.roster button .p{margin-left:auto;font-family:var(--f-mono);font-weight:600}
+.roster button .pend{margin-left:auto;font-size:.75rem;color:var(--warn);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.roster button[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.steps{display:grid;gap:8px}
+.step{display:grid;grid-template-columns:70px 48px 1fr 48px;align-items:center;gap:8px}
+.step .z{font-family:var(--f-disp);font-weight:700;font-size:1.25rem}
+.step .z small{display:block;font-family:var(--f-body);font-weight:400;font-size:.7rem;color:var(--ink3)}
+.step button{height:48px;border-radius:6px;border:1px solid var(--line);background:var(--paper);font-size:1.4rem;font-weight:700;cursor:pointer}
+.step output{text-align:center;font-family:var(--f-mono);font-size:1.5rem;font-weight:600}
+.totbox{display:flex;align-items:baseline;gap:12px;padding:12px;border-radius:6px;background:var(--paper)}
+.totbox b{font-family:var(--f-mono);font-size:2.2rem;line-height:1}
+.err{color:var(--down);font-size:.85rem;font-weight:600}
+.ok{color:var(--up);font-size:.85rem;font-weight:600}
+
+.tlist{display:grid;gap:10px}
+.tcard{border:1px solid var(--line);border-radius:5px;padding:12px 14px;display:grid;gap:6px}
+.tcard .h{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.tcard .h b{font-family:var(--f-disp);font-size:1.15rem}
+.tcard .h .sp{margin-left:auto}
+.spec{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--f-mono);font-size:.8rem;color:var(--ink2)}
+
+.drop{border:2px dashed var(--line);border-radius:8px;padding:26px 16px;text-align:center;display:grid;gap:8px;justify-items:center}
+.drop.over{border-color:var(--accent)}
+.steps-guide{margin:0;padding-left:20px;display:grid;gap:8px}
+code{font-family:var(--f-mono);font-size:.85em;background:var(--paper);padding:1px 5px;border-radius:3px;border:1px solid var(--line)}
+.note{font-size:.82rem;color:var(--ink2);border-left:3px solid var(--line);padding-left:10px}
+.who{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.adm-list{display:grid;gap:8px}
+.adm-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;border:1px solid var(--line);border-radius:5px;padding:10px 12px}
+.adm-row .who-e{font-family:var(--f-mono);font-size:.85rem;word-break:break-all;min-width:0}
+.adm-row .sp{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.btn.sm{padding:5px 10px;font-size:.82rem}
+.login{max-width:420px}
+.chip-s.g{--sc:var(--ink)}
+.offline{background:color-mix(in oklab,var(--warn) 14%,var(--card));border:1px solid color-mix(in oklab,var(--warn) 40%,var(--line));color:var(--ink);border-radius:var(--r);padding:10px 14px;font-size:.88rem}
+.copas{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.copa-card{text-align:left;border:1px solid var(--line);background:var(--card);border-radius:6px;padding:12px 14px;cursor:pointer;display:grid;gap:4px}
+.copa-card[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.copa-card b{font-family:var(--f-disp);font-size:1.15rem}
+.bracket{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(232px,1fr);gap:14px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.fase{display:flex;flex-direction:column;gap:10px;min-width:0}
+.fase>.fh{position:sticky;top:0}
+.fase>.fh b{font-family:var(--f-disp);font-size:1.1rem;display:block}
+.fase .fl{display:flex;flex-direction:column;justify-content:space-around;gap:10px;flex:1}
+.duel{border:1px solid var(--line);border-radius:6px;background:var(--card);overflow:hidden}
+.duel.pend{border-style:dashed}
+.dl{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--line)}
+.dl:nth-child(2){border-bottom:none}
+.dl .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl .sc2{font-family:var(--f-mono);font-size:.82rem;color:var(--ink2);white-space:nowrap}
+.dl.win{background:color-mix(in oklab,var(--accent) 10%,var(--card))}
+.dl.win .n{color:var(--accent)}
+.dl.lose .n{color:var(--ink3);font-weight:500}
+.dl.bye .n{color:var(--ink3);font-weight:400;font-style:italic}
+.dst{font-size:.74rem;color:var(--ink2);padding:5px 10px;background:var(--paper);border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.dst .act{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+.dst.alert{color:var(--warn);font-weight:600}
+.champ{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;border-radius:6px;background:color-mix(in oklab,var(--sA) 14%,var(--card));border:1px solid color-mix(in oklab,var(--sA) 45%,var(--line))}
+.champ b{font-family:var(--f-disp);font-size:1.6rem;line-height:1}
+.pick{display:grid;gap:12px}
+.pick fieldset{border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin:0;min-width:0}
+.pick legend{font-weight:700;font-family:var(--f-disp);font-size:1.05rem;padding:0 4px;display:flex;gap:8px;align-items:center}
+.pick .ck{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 10px}
+.pick label{display:flex;gap:6px;align-items:center;font-size:.88rem;padding:4px 0;cursor:pointer}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--card);padding:10px 16px;border-radius:6px;font-weight:600;z-index:20;max-width:calc(100% - 32px)}
+svg text{font-family:var(--f-mono)}
+@media (prefers-reduced-motion:no-preference){.view{animation:fade .25s ease}}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+@media(max-width:560px){h2{font-size:1.4rem}.prof-head h2{font-size:1.7rem}.hide-s{display:none}.panel{padding:14px}}
+</style>
+
+<div class="top"><div class="wrap">
+  <div class="brand-mark" id="brandMark"></div>
+  <div class="brand"><h1 id="brandName">CCT</h1><p>Ranking de tiro defensivo · séries A, B, C e D</p></div>
+  <div class="cycle"><span class="lbl">Ciclo</span><b id="cycleLbl">2026</b><span class="mode" id="modeLbl"></span></div>
+</div></div>
+<nav class="tabs" aria-label="Seções"><div class="wrap">
+  <a href="#ranking">Ranking</a><a href="#mapa">Mapa de treinos</a><a href="#atirador">Atirador</a><a href="#copas">Copas</a>
+  <a href="#lancar" class="cta" data-adm>Lançar resultado</a><a href="#treinos" data-adm>Treinos</a><a href="#importar" data-adm>Importar</a><a href="#ajustes" data-adm>Ajustes</a><a href="#entrar" id="navEntrar" hidden>Área do administrador</a>
+</div></nav>
+<main class="wrap" id="app"><div class="panel"><p class="muted" style="margin:0">Carregando dados…</p></div></main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const SEED = {"config": {"nome": "CCT", "sobem": 4, "descem": 4, "desempate": "X", "ciclo": "2026", "logo": ""}, "atiradores": [{"id": "guimaraes", "nome": "GUIMARÃES", "serie": "B", "arma": "G22", "ativo": true}, {"id": "fabio", "nome": "FÁBIO", "serie": "B", "arma": "G22", "ativo": true}, {"id": "sampaio", "nome": "SAMPAIO", "serie": "B", "arma": "G22", "ativo": true}, {"id": "correia", "nome": "CORREIA", "serie": "B", "arma": "G22", "ativo": true}, {"id": "ramos", "nome": "RAMOS", "serie": "B", "arma": "G22", "ativo": true}, {"id": "silvestre", "nome": "SILVESTRE", "serie": "B", "arma": "G17", "ativo": true}, {"id": "pinheiro", "nome": "PINHEIRO", "serie": "B", "arma": "PT 24/7", "ativo": true}, {"id": "adilson", "nome": "ADILSON", "serie": "B", "arma": "G19", "ativo": true}, {"id": "cleyver", "nome": "CLEYVER", "serie": "B", "arma": "G22", "ativo": true}, {"id": "rodrigo", "nome": "RODRIGO", "serie": "B", "arma": "", "ativo": true}, {"id": "franca", "nome": "FRANÇA", "serie": "B", "arma": "G22", "ativo": true}, {"id": "nielson", "nome": "NIELSON", "serie": "B", "arma": "G22", "ativo": true}, {"id": "patrique", "nome": "PATRIQUE", "serie": "B", "arma": "PT100", "ativo": true}, {"id": "larissa", "nome": "LARISSA", "serie": "B", "arma": "PT100", "ativo": true}, {"id": "fraga", "nome": "FRAGA", "serie": "B", "arma": "PT100", "ativo": true}, {"id": "blanco", "nome": "BLANCO", "serie": "B", "arma": "", "ativo": true}, {"id": "santiago", "nome": "SANTIAGO", "serie": "B", "arma": "G22", "ativo": true}, {"id": "santiago-12", "nome": "SANTIAGO 12", "serie": "B", "arma": "G19", "ativo": true}, {"id": "f-santos", "nome": "F. SANTOS", "serie": "B", "arma": "", "ativo": true}, {"id": "danilo", "nome": "DANILO", "serie": "B", "arma": "G43X", "ativo": true}, {"id": "david", "nome": "DAVID", "serie": "B", "arma": "TS9", "ativo": true}, {"id": "alex", "nome": "ALEX", "serie": "B", "arma": "G22", "ativo": true}, {"id": "daiane", "nome": "DAIANE", "serie": "B", "arma": "", "ativo": true}, {"id": "andrea", "nome": "ANDREA", "serie": "B", "arma": "", "ativo": true}, {"id": "tadeu", "nome": "TADEU", "serie": "B", "arma": "PT100", "ativo": true}, {"id": "alan", "nome": "ALAN", "serie": "B", "arma": "G17", "ativo": true}, {"id": "teodoro", "nome": "TEODORO", "serie": "B", "arma": "", "ativo": true}, {"id": "lapido", "nome": "LAPIDO", "serie": "B", "arma": "", "ativo": true}, {"id": "alex-soares", "nome": "ALEX SOARES", "serie": "B", "arma": "", "ativo": true}, {"id": "boson", "nome": "BOSON", "serie": "B", "arma": "", "ativo": true}, {"id": "uelber", "nome": "UELBER", "serie": "B", "arma": "", "ativo": true}], "treinos": [{"id": "2026-01-B", "mes": "2026-01", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "", "distancia": "", "tempo": "", "angulo": "", "empunhadura": "", "disparos": 10, "max": 100, "fundamentos": [], "obs": "Ficha do exercício não informada — apenas pontos e X do ranking geral."}, {"id": "2026-02-B", "mes": "2026-02", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "", "distancia": "", "tempo": "", "angulo": "", "empunhadura": "", "disparos": 10, "max": 100, "fundamentos": [], "obs": "Ficha do exercício não informada — apenas pontos e X do ranking geral."}, {"id": "2026-03-B", "mes": "2026-03", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "", "distancia": "", "tempo": "", "angulo": "", "empunhadura": "", "disparos": 10, "max": 100, "fundamentos": [], "obs": "Ficha do exercício não informada — apenas pontos e X do ranking geral."}, {"id": "2026-04-B", "mes": "2026-04", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "", "distancia": "", "tempo": "", "angulo": "", "empunhadura": "", "disparos": 10, "max": 100, "fundamentos": [], "obs": "Ficha do exercício não informada — apenas pontos e X do ranking geral."}, {"id": "2026-05-B", "mes": "2026-05", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "", "distancia": "", "tempo": "", "angulo": "", "empunhadura": "", "disparos": 10, "max": 100, "fundamentos": [], "obs": "Ficha do exercício não informada — apenas pontos e X do ranking geral."}, {"id": "2026-06-B", "mes": "2026-06", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "", "distancia": "", "tempo": "", "angulo": "", "empunhadura": "", "disparos": 10, "max": 100, "fundamentos": [], "obs": "Ficha do exercício não informada — apenas pontos e X do ranking geral."}, {"id": "2026-07-B", "mes": "2026-07", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "", "distancia": "", "tempo": "", "angulo": "", "empunhadura": "", "disparos": 10, "max": 100, "fundamentos": [], "obs": "Ficha do exercício não informada — apenas pontos e X do ranking geral."}, {"id": "2026-08-B", "mes": "2026-08", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "", "distancia": "", "tempo": "", "angulo": "", "empunhadura": "", "disparos": 10, "max": 100, "fundamentos": [], "obs": "Ficha do exercício não informada — apenas pontos e X do ranking geral."}, {"id": "2026-09-B", "mes": "2026-09", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "", "distancia": "", "tempo": "", "angulo": "", "empunhadura": "", "disparos": 10, "max": 100, "fundamentos": [], "obs": "Ficha do exercício não informada — apenas pontos e X do ranking geral."}, {"id": "2026-10-B", "mes": "2026-10", "serie": "B", "tipo": "Tiro Defensivo", "alvo": "A4 (Moreira)", "distancia": 4, "tempo": 15, "angulo": "45º", "empunhadura": "Dupla", "disparos": 10, "max": 100, "fundamentos": ["Empunhadura dupla", "Tiro sob tempo", "Engajamento em ângulo"], "obs": "Planilha de treino out/2026. Pontuação: acertos na zona 10 × 10; X = centro do 10."}], "resultados": [{"treino": "2026-01-B", "atirador": "guimaraes", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 93}, {"treino": "2026-03-B", "atirador": "guimaraes", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-04-B", "atirador": "guimaraes", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 83}, {"treino": "2026-05-B", "atirador": "guimaraes", "arma": "", "x": 10, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "guimaraes", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-07-B", "atirador": "guimaraes", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 97}, {"treino": "2026-08-B", "atirador": "guimaraes", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 79}, {"treino": "2026-09-B", "atirador": "guimaraes", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-10-B", "atirador": "guimaraes", "arma": "G22", "x": 5, "z10": 10, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 100}, {"treino": "2026-01-B", "atirador": "fabio", "arma": "", "x": 6, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 95}, {"treino": "2026-02-B", "atirador": "fabio", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-03-B", "atirador": "fabio", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-04-B", "atirador": "fabio", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-05-B", "atirador": "fabio", "arma": "", "x": 10, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "fabio", "arma": "", "x": 6, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-07-B", "atirador": "fabio", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 73}, {"treino": "2026-08-B", "atirador": "fabio", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 44}, {"treino": "2026-09-B", "atirador": "fabio", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-10-B", "atirador": "fabio", "arma": "G22", "x": 4, "z10": 9, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 90}, {"treino": "2026-01-B", "atirador": "sampaio", "arma": "", "x": 7, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 97}, {"treino": "2026-02-B", "atirador": "sampaio", "arma": "", "x": 9, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-03-B", "atirador": "sampaio", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-04-B", "atirador": "sampaio", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 86}, {"treino": "2026-05-B", "atirador": "sampaio", "arma": "", "x": 9, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 99}, {"treino": "2026-06-B", "atirador": "sampaio", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 92}, {"treino": "2026-07-B", "atirador": "sampaio", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 91}, {"treino": "2026-08-B", "atirador": "sampaio", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 48}, {"treino": "2026-09-B", "atirador": "sampaio", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-10-B", "atirador": "sampaio", "arma": "G22", "x": 2, "z10": 4, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 40}, {"treino": "2026-01-B", "atirador": "correia", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 93}, {"treino": "2026-02-B", "atirador": "correia", "arma": "", "x": 6, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-03-B", "atirador": "correia", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-04-B", "atirador": "correia", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 82}, {"treino": "2026-05-B", "atirador": "correia", "arma": "", "x": 10, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "correia", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 98}, {"treino": "2026-07-B", "atirador": "correia", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 97}, {"treino": "2026-08-B", "atirador": "correia", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 28}, {"treino": "2026-09-B", "atirador": "correia", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-10-B", "atirador": "correia", "arma": "G22", "x": 6, "z10": 9, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 90}, {"treino": "2026-01-B", "atirador": "ramos", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 92}, {"treino": "2026-02-B", "atirador": "ramos", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 50}, {"treino": "2026-03-B", "atirador": "ramos", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-04-B", "atirador": "ramos", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-05-B", "atirador": "ramos", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-06-B", "atirador": "ramos", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 88}, {"treino": "2026-07-B", "atirador": "ramos", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 91}, {"treino": "2026-08-B", "atirador": "ramos", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 66}, {"treino": "2026-09-B", "atirador": "ramos", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-10-B", "atirador": "ramos", "arma": "G22", "x": 9, "z10": 9, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 90}, {"treino": "2026-01-B", "atirador": "silvestre", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 95}, {"treino": "2026-02-B", "atirador": "silvestre", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 50}, {"treino": "2026-03-B", "atirador": "silvestre", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 20}, {"treino": "2026-04-B", "atirador": "silvestre", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 86}, {"treino": "2026-05-B", "atirador": "silvestre", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "silvestre", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-07-B", "atirador": "silvestre", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 93}, {"treino": "2026-08-B", "atirador": "silvestre", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 76}, {"treino": "2026-09-B", "atirador": "silvestre", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-10-B", "atirador": "silvestre", "arma": "G17", "x": 3, "z10": 6, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 60}, {"treino": "2026-01-B", "atirador": "pinheiro", "arma": "", "x": 7, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 97}, {"treino": "2026-02-B", "atirador": "pinheiro", "arma": "", "x": 6, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-03-B", "atirador": "pinheiro", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-04-B", "atirador": "pinheiro", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-05-B", "atirador": "pinheiro", "arma": "", "x": 9, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "pinheiro", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 96}, {"treino": "2026-07-B", "atirador": "pinheiro", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 79}, {"treino": "2026-08-B", "atirador": "pinheiro", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 8}, {"treino": "2026-09-B", "atirador": "pinheiro", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-10-B", "atirador": "pinheiro", "arma": "PT 24/7", "x": 1, "z10": 5, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 50}, {"treino": "2026-02-B", "atirador": "adilson", "arma": "", "x": 6, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-03-B", "atirador": "adilson", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-04-B", "atirador": "adilson", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-05-B", "atirador": "adilson", "arma": "", "x": 9, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "adilson", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-07-B", "atirador": "adilson", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 96}, {"treino": "2026-08-B", "atirador": "adilson", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 81}, {"treino": "2026-09-B", "atirador": "adilson", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-10-B", "atirador": "adilson", "arma": "G19", "x": 3, "z10": 5, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 50}, {"treino": "2026-02-B", "atirador": "cleyver", "arma": "", "x": 10, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-03-B", "atirador": "cleyver", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-04-B", "atirador": "cleyver", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 86}, {"treino": "2026-05-B", "atirador": "cleyver", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "cleyver", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 96}, {"treino": "2026-07-B", "atirador": "cleyver", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 75}, {"treino": "2026-08-B", "atirador": "cleyver", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 43}, {"treino": "2026-09-B", "atirador": "cleyver", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-10-B", "atirador": "cleyver", "arma": "G22", "x": 4, "z10": 8, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 80}, {"treino": "2026-01-B", "atirador": "rodrigo", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 89}, {"treino": "2026-02-B", "atirador": "rodrigo", "arma": "", "x": 7, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-03-B", "atirador": "rodrigo", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-04-B", "atirador": "rodrigo", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 75}, {"treino": "2026-05-B", "atirador": "rodrigo", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 98}, {"treino": "2026-06-B", "atirador": "rodrigo", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 98}, {"treino": "2026-07-B", "atirador": "rodrigo", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 84}, {"treino": "2026-08-B", "atirador": "rodrigo", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-09-B", "atirador": "rodrigo", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-02-B", "atirador": "franca", "arma": "", "x": 6, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-03-B", "atirador": "franca", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-04-B", "atirador": "franca", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 85}, {"treino": "2026-05-B", "atirador": "franca", "arma": "", "x": 7, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "franca", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-07-B", "atirador": "franca", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 57}, {"treino": "2026-08-B", "atirador": "franca", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 69}, {"treino": "2026-09-B", "atirador": "franca", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-10-B", "atirador": "franca", "arma": "G22", "x": 1, "z10": 6, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 60}, {"treino": "2026-02-B", "atirador": "nielson", "arma": "", "x": 6, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-03-B", "atirador": "nielson", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-04-B", "atirador": "nielson", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 71}, {"treino": "2026-05-B", "atirador": "nielson", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "nielson", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 86}, {"treino": "2026-07-B", "atirador": "nielson", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 84}, {"treino": "2026-08-B", "atirador": "nielson", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 66}, {"treino": "2026-09-B", "atirador": "nielson", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-10-B", "atirador": "nielson", "arma": "G22", "x": 2, "z10": 6, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 60}, {"treino": "2026-01-B", "atirador": "patrique", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-02-B", "atirador": "patrique", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 30}, {"treino": "2026-03-B", "atirador": "patrique", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-04-B", "atirador": "patrique", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 89}, {"treino": "2026-05-B", "atirador": "patrique", "arma": "", "x": 7, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 99}, {"treino": "2026-06-B", "atirador": "patrique", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 74}, {"treino": "2026-07-B", "atirador": "patrique", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 54}, {"treino": "2026-08-B", "atirador": "patrique", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 49}, {"treino": "2026-09-B", "atirador": "patrique", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-10-B", "atirador": "patrique", "arma": "PT100", "x": 2, "z10": 4, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 40}, {"treino": "2026-01-B", "atirador": "larissa", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 89}, {"treino": "2026-02-B", "atirador": "larissa", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 50}, {"treino": "2026-03-B", "atirador": "larissa", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-04-B", "atirador": "larissa", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 83}, {"treino": "2026-05-B", "atirador": "larissa", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "larissa", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 92}, {"treino": "2026-07-B", "atirador": "larissa", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 78}, {"treino": "2026-08-B", "atirador": "larissa", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 31}, {"treino": "2026-09-B", "atirador": "larissa", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 40}, {"treino": "2026-10-B", "atirador": "larissa", "arma": "PT100", "x": 0, "z10": 2, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 20}, {"treino": "2026-01-B", "atirador": "fraga", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 93}, {"treino": "2026-02-B", "atirador": "fraga", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 10}, {"treino": "2026-03-B", "atirador": "fraga", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-04-B", "atirador": "fraga", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 83}, {"treino": "2026-05-B", "atirador": "fraga", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 98}, {"treino": "2026-06-B", "atirador": "fraga", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 66}, {"treino": "2026-07-B", "atirador": "fraga", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 76}, {"treino": "2026-08-B", "atirador": "fraga", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 25}, {"treino": "2026-09-B", "atirador": "fraga", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-10-B", "atirador": "fraga", "arma": "PT100", "x": 2, "z10": 5, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 50}, {"treino": "2026-01-B", "atirador": "blanco", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 93}, {"treino": "2026-02-B", "atirador": "blanco", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 50}, {"treino": "2026-03-B", "atirador": "blanco", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-04-B", "atirador": "blanco", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 78}, {"treino": "2026-05-B", "atirador": "blanco", "arma": "", "x": 9, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-07-B", "atirador": "blanco", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 93}, {"treino": "2026-08-B", "atirador": "blanco", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 63}, {"treino": "2026-09-B", "atirador": "blanco", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-01-B", "atirador": "santiago", "arma": "", "x": 6, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 96}, {"treino": "2026-02-B", "atirador": "santiago", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 30}, {"treino": "2026-03-B", "atirador": "santiago", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 20}, {"treino": "2026-04-B", "atirador": "santiago", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 91}, {"treino": "2026-05-B", "atirador": "santiago", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "santiago", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-07-B", "atirador": "santiago", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 37}, {"treino": "2026-09-B", "atirador": "santiago", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-10-B", "atirador": "santiago", "arma": "G22", "x": 7, "z10": 9, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 90}, {"treino": "2026-01-B", "atirador": "santiago-12", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 94}, {"treino": "2026-02-B", "atirador": "santiago-12", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 20}, {"treino": "2026-03-B", "atirador": "santiago-12", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-04-B", "atirador": "santiago-12", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-05-B", "atirador": "santiago-12", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "santiago-12", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 86}, {"treino": "2026-07-B", "atirador": "santiago-12", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 72}, {"treino": "2026-08-B", "atirador": "santiago-12", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 17}, {"treino": "2026-09-B", "atirador": "santiago-12", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-10-B", "atirador": "santiago-12", "arma": "G19", "x": 0, "z10": 3, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 30}, {"treino": "2026-01-B", "atirador": "f-santos", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 88}, {"treino": "2026-02-B", "atirador": "f-santos", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 40}, {"treino": "2026-03-B", "atirador": "f-santos", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-05-B", "atirador": "f-santos", "arma": "", "x": 7, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-06-B", "atirador": "f-santos", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-07-B", "atirador": "f-santos", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 69}, {"treino": "2026-08-B", "atirador": "f-santos", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 71}, {"treino": "2026-09-B", "atirador": "f-santos", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-01-B", "atirador": "danilo", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 88}, {"treino": "2026-02-B", "atirador": "danilo", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 30}, {"treino": "2026-03-B", "atirador": "danilo", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 20}, {"treino": "2026-04-B", "atirador": "danilo", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 69}, {"treino": "2026-05-B", "atirador": "danilo", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "danilo", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-07-B", "atirador": "danilo", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 52}, {"treino": "2026-08-B", "atirador": "danilo", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 16}, {"treino": "2026-09-B", "atirador": "danilo", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-10-B", "atirador": "danilo", "arma": "G43X", "x": 4, "z10": 6, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 60}, {"treino": "2026-01-B", "atirador": "david", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 92}, {"treino": "2026-02-B", "atirador": "david", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 20}, {"treino": "2026-03-B", "atirador": "david", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 50}, {"treino": "2026-04-B", "atirador": "david", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 57}, {"treino": "2026-05-B", "atirador": "david", "arma": "", "x": 7, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "david", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 88}, {"treino": "2026-07-B", "atirador": "david", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 52}, {"treino": "2026-08-B", "atirador": "david", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 16}, {"treino": "2026-09-B", "atirador": "david", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 50}, {"treino": "2026-10-B", "atirador": "david", "arma": "TS9", "x": 4, "z10": 7, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 70}, {"treino": "2026-01-B", "atirador": "alex", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 91}, {"treino": "2026-02-B", "atirador": "alex", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 30}, {"treino": "2026-03-B", "atirador": "alex", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 90}, {"treino": "2026-04-B", "atirador": "alex", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 76}, {"treino": "2026-06-B", "atirador": "alex", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 78}, {"treino": "2026-07-B", "atirador": "alex", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 91}, {"treino": "2026-08-B", "atirador": "alex", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 23}, {"treino": "2026-09-B", "atirador": "alex", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-10-B", "atirador": "alex", "arma": "G22", "x": 1, "z10": 5, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 50}, {"treino": "2026-01-B", "atirador": "daiane", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 93}, {"treino": "2026-02-B", "atirador": "daiane", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 30}, {"treino": "2026-03-B", "atirador": "daiane", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 50}, {"treino": "2026-04-B", "atirador": "daiane", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 82}, {"treino": "2026-05-B", "atirador": "daiane", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "daiane", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-07-B", "atirador": "daiane", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 91}, {"treino": "2026-08-B", "atirador": "daiane", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 44}, {"treino": "2026-01-B", "atirador": "andrea", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 85}, {"treino": "2026-03-B", "atirador": "andrea", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 60}, {"treino": "2026-04-B", "atirador": "andrea", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 82}, {"treino": "2026-05-B", "atirador": "andrea", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 91}, {"treino": "2026-07-B", "atirador": "andrea", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 93}, {"treino": "2026-08-B", "atirador": "andrea", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 66}, {"treino": "2026-09-B", "atirador": "andrea", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-01-B", "atirador": "tadeu", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 88}, {"treino": "2026-02-B", "atirador": "tadeu", "arma": "", "x": 5, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 50}, {"treino": "2026-03-B", "atirador": "tadeu", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 30}, {"treino": "2026-04-B", "atirador": "tadeu", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 21}, {"treino": "2026-05-B", "atirador": "tadeu", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "tadeu", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 38}, {"treino": "2026-07-B", "atirador": "tadeu", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 35}, {"treino": "2026-08-B", "atirador": "tadeu", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 40}, {"treino": "2026-09-B", "atirador": "tadeu", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 30}, {"treino": "2026-10-B", "atirador": "tadeu", "arma": "PT100", "x": 4, "z10": 6, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 60}, {"treino": "2026-01-B", "atirador": "alan", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 46}, {"treino": "2026-03-B", "atirador": "alan", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 30}, {"treino": "2026-04-B", "atirador": "alan", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 47}, {"treino": "2026-05-B", "atirador": "alan", "arma": "", "x": 9, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "alan", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 96}, {"treino": "2026-07-B", "atirador": "alan", "arma": "", "x": 2, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 93}, {"treino": "2026-08-B", "atirador": "alan", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 32}, {"treino": "2026-09-B", "atirador": "alan", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 40}, {"treino": "2026-10-B", "atirador": "alan", "arma": "G17", "x": 2, "z10": 7, "z9": 0, "z8": 0, "z7": 0, "z6": 0, "pts": 70}, {"treino": "2026-01-B", "atirador": "teodoro", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 54}, {"treino": "2026-02-B", "atirador": "teodoro", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 30}, {"treino": "2026-03-B", "atirador": "teodoro", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 40}, {"treino": "2026-04-B", "atirador": "teodoro", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 31}, {"treino": "2026-05-B", "atirador": "teodoro", "arma": "", "x": 10, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 100}, {"treino": "2026-06-B", "atirador": "teodoro", "arma": "", "x": 1, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-08-B", "atirador": "teodoro", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 0}, {"treino": "2026-09-B", "atirador": "teodoro", "arma": "", "x": 0, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 70}, {"treino": "2026-01-B", "atirador": "lapido", "arma": "", "x": 4, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 92}, {"treino": "2026-02-B", "atirador": "lapido", "arma": "", "x": 8, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 80}, {"treino": "2026-01-B", "atirador": "alex-soares", "arma": "", "x": 3, "z10": null, "z9": null, "z8": null, "z7": null, "z6": null, "pts": 91}], "copas": [{"id": "copa-exemplo-2026", "nome": "Copa CCT 2026 (exemplo)", "inicio": "2026-07", "participantes": ["fabio", null, "sampaio", null, "franca", "correia", "ramos", "adilson", "silvestre", "cleyver", "patrique", "rodrigo", "guimaraes", null, "nielson", "pinheiro"], "ranking": ["guimaraes", "fabio", "sampaio", "correia", "ramos", "silvestre", "pinheiro", "adilson", "cleyver", "rodrigo", "franca", "nielson", "patrique"], "decisoes": {}, "status": "ativa", "criado_em": "2026-06-30T12:00:00Z"}]};
+const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MESES_L=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const SERIES=['A','B','C','D'];
+const ZONAS=[10,9,8,7,6];
+const FUNDAMENTOS=['Saque','Empunhadura dupla','Mão forte','Mão fraca','Visada e alinhamento','Acionamento do gatilho','Controle de recuo','Tiro sob tempo','Transição entre alvos','Engajamento em ângulo','Recarga','Solução de pane','Tiro em movimento','Uso de abrigo','Baixa luminosidade'];
+const TIPOS=['Tiro Defensivo','Precisão','Velocidade','Tiro Operacional','Qualificação'];
+const GASRUN = !!(window.google && google.script && google.script.run);
+const API_URL = (!GASRUN && typeof window.CCT_API==='string') ? window.CCT_API.trim() : '';
+const GAS = GASRUN || !!API_URL;   /* GAS = dados reais na planilha */
+let S=null, ui={serie:'B', atirador:null, treino:null, edit:null, imp:null, editTreino:null};
+const ADM_ROUTES=['lancar','treinos','importar','ajustes'];
+const TK='cct.sessao.v1';
+let AUTH=GAS?{admin:false}:{admin:true,demo:true,email:'',nome:'Modo demonstração'};
+let ADMS=null, ADMEDIT=null;
+function tokenGet(){try{return localStorage.getItem(TK)||'';}catch(e){return '';}}
+function tokenSet(t){try{t?localStorage.setItem(TK,t):localStorage.removeItem(TK);}catch(e){}}
+
+/* ---------- utilitários ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=(n,d=0)=>n==null||isNaN(n)?'–':Number(n).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const mean=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:null;
+const sdev=a=>{if(a.length<2)return 0;const m=mean(a);return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(a.length-1));};
+function slope(ys){const n=ys.length;if(n<3)return null;const xm=(n-1)/2,ym=mean(ys);let a=0,b=0;ys.forEach((y,i)=>{a+=(i-xm)*(y-ym);b+=(i-xm)**2;});return a/b;}
+const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
+const slug=s=>norm(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const mesLbl=m=>{const [y,mm]=m.split('-');return MESES[+mm-1]+'/'+y.slice(2);};
+const sc=s=>`--sc:var(--s${s})`;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(t._t);t._t=setTimeout(()=>t.hidden=true,2600);}
+function loadScript(src){return new Promise((ok,ko)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>ko(new Error('Não foi possível carregar '+src));document.head.appendChild(s);});}
+
+/* ---------- dados: Google Planilhas (Apps Script) ou modo local ---------- */
+const LS='cct.dados.v1';
+function gasErr(e){const m=String((e&&e.message)||e).replace(/^Exception:\s*/,'');if(/Acesso restrito/.test(m)){AUTH={admin:false};tokenSet('');}return new Error(m);}
+function gas(fn,arg){
+  if(GASRUN)return new Promise((ok,ko)=>google.script.run.withSuccessHandler(ok).withFailureHandler(e=>ko(gasErr(e)))[fn](arg));
+  return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn,arg}),redirect:'follow'})
+    .then(r=>{if(!r.ok)throw new Error('Servidor respondeu '+r.status);return r.json();},e=>{throw new Error('Sem conexão com a planilha. Verifique a internet.');})
+    .then(j=>{if(!j.ok)throw gasErr(j.error);return j.data;});
+}
+const CACHE='cct.cache.v1';
+let OFFLINE=null;
+function fromSheet(d){
+  const cfg={...SEED.config};(d.config||[]).forEach(r=>{cfg[r.chave]=r.valor;});
+  const parts=Object.keys(cfg).filter(k=>/^logo#\d+$/.test(k)).sort((a,b)=>+a.split('#')[1]-+b.split('#')[1]);
+  if(parts.length){cfg.logo=parts.map(k=>cfg[k]).join('');parts.forEach(k=>delete cfg[k]);}
+  return {config:cfg,atiradores:d.atiradores||[],treinos:d.treinos||[],resultados:d.resultados||[],copas:d.copas||[]};
+}
+const Store={
+  async load(){
+    if(GAS){
+      let d,q;
+      try{[d,q]=await Promise.all([gas('api_load'),gas('api_quem',tokenGet()).catch(()=>({admin:false}))]);OFFLINE=null;try{localStorage.setItem(CACHE,JSON.stringify({em:Date.now(),d}));}catch(e){}}
+      catch(e){let c=null;try{c=JSON.parse(localStorage.getItem(CACHE)||'null');}catch(_){}if(!c)throw e;d=c.d;q={admin:false};OFFLINE=c.em;}
+      S=fromSheet(d);AUTH=q;if(!OFFLINE)tokenSet(q.admin?q.token:'');
+    }
+    else{let d=null;try{d=JSON.parse(localStorage.getItem(LS)||'null');}catch(e){}S=d||JSON.parse(JSON.stringify(SEED));}
+    S.copas=(S.copas||[]).map(copaNorm).filter(c=>c.status!=='excluida');
+    S.config.sobem=+S.config.sobem||4;S.config.descem=+S.config.descem||4;
+    S.atiradores.forEach(a=>{a.ativo=!(a.ativo===false||a.ativo==='FALSE'||a.ativo==='false');});
+    S.treinos.forEach(t=>{if(!/^\d{4}-\d{2}$/.test(String(t.mes)))t.mes=String(t.id).slice(0,7);if(!Array.isArray(t.fundamentos))t.fundamentos=String(t.fundamentos||'').split(';').map(s=>s.trim()).filter(Boolean);t.max=+t.max||100;t.disparos=+t.disparos||10;t.mes=String(t.mes).slice(0,7);});
+    S.resultados.forEach(r=>{['x','pts'].forEach(k=>r[k]=+r[k]||0);ZONAS.forEach(z=>{const v=r['z'+z];r['z'+z]=(v===''||v==null)?null:+v;});});
+    reindex();
+  },
+  persist(){if(!GAS){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}},
+  async upsert(tabela,rows){
+    const key={atiradores:r=>r.id,treinos:r=>r.id,resultados:r=>r.treino+'|'+r.atirador,copas:r=>r.id}[tabela];
+    const list=S[tabela];
+    rows.forEach(r=>{const i=list.findIndex(x=>key(x)===key(r));if(i>=0)list[i]={...list[i],...r};else list.push(r);});
+    reindex();this.persist();
+    if(tabela==='copas')S.copas=S.copas.filter(c=>c.status!=='excluida');
+    if(GAS){const out=rows.map(r=>tabela==='treinos'?{...r,fundamentos:(r.fundamentos||[]).join('; ')}:tabela==='copas'?copaOut(r):r);await gas('api_upsert',{token:AUTH.token,tabela,rows:out});}
+  },
+  async saveConfig(cfg){
+    Object.assign(S.config,cfg);this.persist();
+    if(GAS){const rows=[];Object.entries(cfg).forEach(([k,v])=>{if(k==='logo'){const s=String(v||'');const n=Math.max(1,Math.ceil(s.length/40000));for(let i=0;i<n;i++)rows.push({chave:'logo#'+i,valor:s.slice(i*40000,(i+1)*40000)});}else rows.push({chave:k,valor:v});});await gas('api_config',{token:AUTH.token,rows});}
+  },
+  async reset(){if(!GAS){try{localStorage.removeItem(LS);}catch(e){}await this.load();}}
+};
+
+/* ---------- cálculo ---------- */
+let RES={},BYID={};
+/* Série de cada atirador num ciclo = série dos treinos em que ele atirou naquele ano
+   (a mais frequente; no empate, a do treino mais recente). Sem treinos no ciclo, vale o histórico gravado
+   no fechamento (coluna historico, ex.: "2026:B") e, por último, a série atual do cadastro.
+   Assim, consultar um ciclo antigo depois do acesso/descenso mostra cada um na série em que competiu. */
+let SCC={};
+function serieDe(aid,ciclo){
+  ciclo=String(ciclo??S.config.ciclo);
+  const M=SCC[ciclo]||(SCC[ciclo]=(()=>{const tm={};S.treinos.forEach(t=>{if(String(t.mes).startsWith(ciclo))tm[t.id]=t;});const acc={};
+    S.resultados.forEach(r=>{const t=tm[r.treino];if(!t)return;const m=acc[r.atirador]=acc[r.atirador]||{};const o=m[t.serie]=m[t.serie]||{n:0,ult:''};o.n++;if(t.mes>o.ult)o.ult=t.mes;});
+    const out={};Object.entries(acc).forEach(([aid,ss])=>{out[aid]=Object.entries(ss).sort((a,b)=>b[1].n-a[1].n||b[1].ult.localeCompare(a[1].ult))[0][0];});return out;})());
+  if(M[aid])return M[aid];
+  const a=BYID[aid];if(!a)return '';
+  const h=String(a.historico||'').match(new RegExp('(?:^|;)\\s*'+ciclo+':([ABCD])'));
+  return h?h[1]:a.serie;
+}
+function reindex(){SCC={};RES={};BYID={};S.atiradores.forEach(a=>BYID[a.id]=a);S.resultados.forEach(r=>{(RES[r.treino]=RES[r.treino]||{})[r.atirador]=r;});}
+function treinosSerie(serie){return S.treinos.filter(t=>t.serie===serie&&String(t.mes).startsWith(String(S.config.ciclo))).sort((a,b)=>a.mes.localeCompare(b.mes));}
+function stat(t){
+  const v=Object.values(RES[t.id]||{}).map(r=>r.pts);
+  const m=mean(v),s=sdev(v),teto=v.length?v.filter(x=>x>=t.max).length/v.length:0;
+  return {n:v.length,m,s,teto,min:v.length?Math.min(...v):null,max:v.length?Math.max(...v):null};
+}
+var STC={};function st(t){return STC[t.id]||(STC[t.id]=stat(t));}
+function tScore(t,pts){const s=st(t);return s.s>0?50+10*(pts-s.m)/s.s:50;}
+function ranking(serie){
+  const ts=treinosSerie(serie);
+  const rows=S.atiradores.filter(a=>a.ativo&&serieDe(a.id)===serie).map(a=>{
+    const cells=ts.map(t=>(RES[t.id]||{})[a.id]||null);
+    const done=cells.map((c,i)=>c?{c,t:ts[i]}:null).filter(Boolean);
+    const tv=done.map(d=>tScore(d.t,d.c.pts));
+    return {a,cells,pts:done.reduce((s,d)=>s+d.c.pts,0),x:done.reduce((s,d)=>s+d.c.x,0),n:done.length,
+      tv,nivel:tv.length?mean(tv):null,reg:tv.length>=3?sdev(tv):null,tend:slope(tv.slice(-6)),
+      prec:done.length?done.reduce((s,d)=>s+d.c.x,0)/done.length:null,assid:ts.length?done.length/ts.length:null};
+  });
+  rows.sort((p,q)=>q.pts-p.pts||(S.config.desempate==='X'?q.x-p.x:0)||q.n-p.n||p.a.nome.localeCompare(q.a.nome));
+  const N=rows.length,up=serie==='A'?0:Math.min(+S.config.sobem,N),dn=serie==='D'?0:Math.min(+S.config.descem,Math.max(0,N-up));
+  rows.forEach((r,i)=>{r.pos=i+1;r.zona=i<up?'up':(i>=N-dn?'dn':'mid');});
+  return {ts,rows,up,dn};
+}
+const prevS=s=>SERIES[SERIES.indexOf(s)-1],nextS=s=>SERIES[SERIES.indexOf(s)+1];
+
+/* ---------- gráficos ---------- */
+function spark(cells,ts){
+  const W=96,H=26,n=ts.length;if(!n)return '';
+  const X=i=>n<2?W/2:4+i*(W-8)/(n-1),Y=v=>H-3-(v/100)*(H-6);
+  let d='',last=null;cells.forEach((c,i)=>{if(!c){last=null;return;}const p=c.pts/ts[i].max*100;d+=(last===null?'M':'L')+X(i).toFixed(1)+' '+Y(p).toFixed(1)+' ';last=i;});
+  let li=-1;cells.forEach((c,i)=>{if(c)li=i;});
+  const dot=li>=0?`<circle cx="${X(li)}" cy="${Y(cells[li].pts/ts[li].max*100)}" r="2.6" fill="var(--accent)"/>`:'';
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><line x1="0" x2="${W}" y1="${Y(50)}" y2="${Y(50)}" stroke="var(--line)" stroke-dasharray="2 3"/><path d="${d}" fill="none" stroke="var(--ink2)" stroke-width="1.5" stroke-linejoin="round"/>${dot}</svg>`;
+}
+function lineChart(r,ts,rk){
+  const W=640,H=230,L=34,R=12,T=14,B=28,n=ts.length;if(!n)return '';
+  const X=i=>L+(n<2?(W-L-R)/2:i*(W-L-R)/(n-1)),Y=v=>T+(1-v/100)*(H-T-B);
+  let g='';[0,25,50,75,100].forEach(v=>{g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="10" fill="var(--ink3)">${v}</text>`;});
+  ts.forEach((t,i)=>{g+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--ink3)">${MESES[+t.mes.slice(5)-1]}</text>`;});
+  const avg=ts.map(t=>st(t).m/t.max*100);
+  let band='';const top=ts.map((t,i)=>Math.min(100,(st(t).m+st(t).s)/t.max*100)),bot=ts.map((t,i)=>Math.max(0,(st(t).m-st(t).s)/t.max*100));
+  band='M'+top.map((v,i)=>X(i)+' '+Y(v)).join(' L')+' L'+bot.map((v,i)=>X(i)+' '+Y(v)).reverse().join(' L')+'Z';
+  const ap='M'+avg.map((v,i)=>X(i)+' '+Y(v)).join(' L');
+  let d='',pen=false,pts='';r.cells.forEach((c,i)=>{if(!c){pen=false;pts+=`<text x="${X(i)}" y="${Y(4)}" text-anchor="middle" font-size="11" fill="var(--ink3)">falta</text>`;return;}const v=c.pts/ts[i].max*100;d+=(pen?'L':'M')+X(i)+' '+Y(v)+' ';pen=true;pts+=`<circle cx="${X(i)}" cy="${Y(v)}" r="4" fill="var(--card)" stroke="var(--accent)" stroke-width="2"><title>${MESES[+ts[i].mes.slice(5)-1]}: ${c.pts} pts · X ${c.x}</title></circle>`;});
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolução mensal de ${esc(r.a.nome)} comparada à média da série">${g}<path d="${band}" fill="var(--heat)" opacity=".10"/><path d="${ap}" fill="none" stroke="var(--heat)" stroke-width="1.5" stroke-dasharray="5 4"/><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>${pts}</svg>
+  <div class="legend" style="gap:16px;flex-wrap:wrap"><span style="background:var(--accent);height:3px"></span>${esc(r.a.nome)} <span style="background:var(--heat);height:2px"></span>Média da série <span style="background:var(--heat);opacity:.15"></span>Faixa típica (±1 desvio)</div>`;
+}
+function targetSvg(c,t){
+  const rings=[[6,92],[7,76],[8,60],[9,44],[10,28]];
+  const miss=Math.max(0,t.disparos-ZONAS.reduce((s,z)=>s+(c['z'+z]||0),0));
+  let g=rings.map(([z,r],i)=>`<circle cx="100" cy="100" r="${r}" fill="${i%2?'var(--card)':'var(--paper)'}" stroke="var(--ink3)" stroke-width="1"/>`).join('');
+  g+=`<circle cx="100" cy="100" r="10" fill="none" stroke="var(--ink3)" stroke-dasharray="2 2"/>`;
+  const lab=[[6,84],[7,68],[8,52],[9,36]].map(([z,y])=>`<text x="100" y="${100-y+4}" text-anchor="middle" font-size="12" fill="var(--ink2)">${c['z'+z]||0}</text>`).join('');
+  g+=lab+`<text x="100" y="98" text-anchor="middle" font-size="15" font-weight="600" fill="var(--accent)">${c.z10||0}</text><text x="100" y="112" text-anchor="middle" font-size="9" fill="var(--ink2)">X ${c.x}</text>`;
+  return `<svg viewBox="0 0 200 200" width="210" height="210" role="img" aria-label="Distribuição dos impactos por zona">${g}</svg><div class="small muted">Anel externo para o centro: 6, 7, 8, 9 e 10. ${miss?`<b class="err">${miss} disparo${miss>1?'s':''} sem pontuar</b>`:'Todos os disparos pontuaram.'}</div>`;
+}
+function logoMark(){
+  if(S.config.logo)return `<img src="${S.config.logo}" alt="${esc(S.config.nome)}">`;
+  return `<svg viewBox="0 0 52 52" width="52" height="52" aria-label="CCT"><circle cx="26" cy="26" r="24" fill="var(--ink)"/><circle cx="26" cy="26" r="17" fill="none" stroke="var(--card)" stroke-width="2"/><circle cx="26" cy="26" r="10" fill="none" stroke="var(--card)" stroke-width="2"/><circle cx="26" cy="26" r="3.5" fill="var(--accent)"/></svg>`;
+}
+
+/* ---------- views ---------- */
+function serieChips(geral){return `<div class="series" role="group" aria-label="Série">${geral?`<button class="chip-s g" aria-pressed="${!!ui.geral}" data-serie="G"><i></i>Geral <span class="small" style="font-family:var(--f-mono);font-weight:500">${S.atiradores.filter(a=>a.ativo).length}</span></button>`:''}${SERIES.map(s=>`<button class="chip-s" style="${sc(s)}" aria-pressed="${geral?(!ui.geral&&ui.serie===s):ui.serie===s}" data-serie="${s}"><i></i>Série ${s} <span class="small" style="font-family:var(--f-mono);font-weight:500">${S.atiradores.filter(a=>a.ativo&&serieDe(a.id)===s).length}</span></button>`).join('')}</div>`;}
+function bindSerie(){document.querySelectorAll('[data-serie]').forEach(b=>b.onclick=()=>{if(b.dataset.serie==='G'){ui.geral=true;render();return;}ui.geral=false;ui.serie=b.dataset.serie;ui.atirador=null;ui.treino=null;render();});}
+function empty(msg){return `<div class="panel"><p class="muted" style="margin:0">${msg}</p></div>`;}
+
+function rankingGeral(cicloArg){
+  const ciclo=String(cicloArg??S.config.ciclo),ts=S.treinos.filter(t=>String(t.mes).startsWith(ciclo)),tid=new Set(ts.map(t=>t.id));
+  const meses=[...new Set(ts.map(t=>t.mes))].sort();
+  const acc={};S.resultados.forEach(r=>{if(!tid.has(r.treino))return;const o=acc[r.atirador]=acc[r.atirador]||{pts:0,x:0,n:0,z10:0};o.pts+=r.pts;o.x+=r.x;o.n++;o.z10+=r.z10||0;});
+  const rows=S.atiradores.filter(a=>a.ativo).map(a=>({a,serie:serieDe(a.id,ciclo),...(acc[a.id]||{pts:0,x:0,n:0,z10:0})}));
+  rows.sort((p,q)=>q.pts-p.pts||(S.config.desempate==='X'?q.x-p.x:0)||q.n-p.n||p.a.nome.localeCompare(q.a.nome));
+  let pos=0;rows.forEach((r,i)=>{r.pos=i+1;});
+  return {ciclo,meses,rows};
+}
+function vRankingGeral(){
+  const {meses,rows}=rankingGeral();
+  let h=`<section class="view"><div class="panel"><header><h2>Ranking Geral · todas as séries</h2><span class="sp"></span>${serieChips(true)}</header>`;
+  if(!rows.length)return h+`<p class="muted">Nenhum atirador cadastrado.</p></div></section>`;
+  const por=SERIES.map(s=>({s,n:rows.filter(r=>r.serie===s).length})).filter(o=>o.n);
+  h+=`<div class="facts"><div><span class="lbl">Atiradores</span><b>${rows.length}</b></div><div><span class="lbl">Meses no ciclo</span><b>${meses.length}</b></div><div><span class="lbl">Líder</span><b>${esc(rows[0].a.nome)}</b></div><div><span class="lbl">Por série</span><b style="font-size:1.1rem">${por.map(o=>`<span class="sbadge" style="${sc(o.s)}">${o.s}</span> ${o.n}`).join(' &nbsp;')}</b></div></div></div>`;
+  h+=`<div class="panel"><div class="tscroll"><table class="rk"><thead><tr><th>Cl.</th><th>Atirador</th><th>Série</th><th class="r">Treinos</th><th class="r">X</th><th class="r">Média</th><th class="r">Pontos</th></tr></thead><tbody>`;
+  rows.forEach(r=>{h+=`<tr data-at="${r.a.id}" data-ats="${r.serie}"><td class="pos">${r.pos}</td><td class="nm">${esc(r.a.nome)}<small>${esc(r.a.arma||'arma não informada')}</small></td><td><span class="sbadge" style="${sc(r.serie)}">${r.serie}</span></td><td class="r num">${r.n}/${meses.length}</td><td class="r num">${r.x}</td><td class="r num">${fmt(r.n?r.pts/r.n:null,1)}</td><td class="r big">${r.pts}</td></tr>`;});
+  h+=`</tbody></table></div><p class="note" style="margin:12px 0 0">Soma dos pontos de todos os treinos do ciclo ${esc(S.config.ciclo)}, com as séries atirando o mesmo exercício. Empate decidido por ${S.config.desempate==='X'?'número de X':'número de treinos'}. Serve de referência geral e para definir quem passa direto na 1ª fase das copas; não altera o acesso e o descenso, que seguem o ranking de cada série.</p></div></section>`;
+  return h;
+}
+function vRanking(){
+  if(ui.geral)return vRankingGeral();
+  const {ts,rows,up,dn}=ranking(ui.serie),s=ui.serie;
+  const last=ts[ts.length-1],ls=last?st(last):null;
+  let h=`<section class="view"><div class="panel"><header><h2>Ranking · Série ${s}</h2><span class="sp"></span>${serieChips(true)}</header>`;
+  if(!rows.length){return h+`<p class="muted">Nenhum atirador na Série ${s}. Cadastre em <a href="#ajustes">Ajustes</a> ou importe uma planilha.</p></div></section>`;}
+  h+=`<div class="facts"><div><span class="lbl">Treinos no ciclo</span><b>${ts.length}</b></div><div><span class="lbl">Atiradores</span><b>${rows.length}</b></div>`+
+    (last?`<div><span class="lbl">Último treino · ${mesLbl(last.mes)}</span><b class="num">${fmt(ls.m,1)} <small class="small muted">média</small></b></div>`:'')+
+    `<div><span class="lbl">Líder</span><b>${esc(rows[0].a.nome)}</b></div></div></div>`;
+  h+=`<div class="panel"><div class="tscroll"><table class="rk"><thead><tr><th>Cl.</th><th>Atirador</th><th class="hide-s">Evolução</th><th class="r">Treinos</th><th class="r">X</th><th class="r" title="Índice ajustado: 50 = média de cada treino">Índice</th><th class="r">Pontos</th></tr></thead><tbody>`;
+  rows.forEach((r,i)=>{
+    if(i===0&&up)h+=`<tr class="zone up"><td colspan="7">▲ Zona de acesso · ${up} sobem para a Série ${prevS(s)}</td></tr>`;
+    if(i===rows.length-dn&&dn)h+=`<tr class="zone dn"><td colspan="7">▼ Zona de descenso · ${dn} caem para a Série ${nextS(s)}</td></tr>`;
+    h+=`<tr class="${r.zona==='up'?'inUp':r.zona==='dn'?'inDn':''}" data-at="${r.a.id}"><td class="pos">${r.pos}</td><td class="nm">${esc(r.a.nome)}<small>${esc(r.a.arma||'arma não informada')}</small></td><td class="hide-s">${spark(r.cells,ts)}</td><td class="r num">${r.n}/${ts.length}</td><td class="r num">${r.x}</td><td class="r num">${fmt(r.nivel,0)}</td><td class="r big">${r.pts}</td></tr>`;
+  });
+  h+=`</tbody></table></div><p class="note" style="margin:12px 0 0">Ordem: pontos somados no ciclo; empate decidido por ${S.config.desempate==='X'?'número de X':'número de treinos'}. Falta vale zero. O <b>Índice</b> compara cada resultado com a média do próprio treino (50 = média), por isso mostra o nível de quem faltou sem penalizar a ausência.</p></div></section>`;
+  return h;
+}
+
+function vMapa(){
+  const {ts,rows}=ranking(ui.serie);
+  let h=`<section class="view"><div class="panel"><header><h2>Mapa de treinos · Série ${ui.serie}</h2><span class="sp"></span>${serieChips()}</header>`;
+  if(!rows.length||!ts.length)return h+`<p class="muted">Sem treinos lançados nesta série no ciclo ${esc(S.config.ciclo)}.</p></div></section>`;
+  const cell=(c,t)=>{if(!c)return `<div class="hc f" title="Falta">·</div>`;const p=c.pts/t.max;const bg=`color-mix(in oklab,var(--heat) ${Math.round(8+p*82)}%,var(--card))`;const fg=p>.55?'var(--card)':'var(--ink)';return `<div class="hc" style="background:${bg};color:${fg}" title="${c.pts} pts · X ${c.x}">${c.pts}</div>`;};
+  h+=`<div class="tscroll"><table class="heat"><thead><tr><th class="n lbl">Atirador</th>${ts.map(t=>`<th class="lbl">${MESES[+t.mes.slice(5)-1]}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach(r=>{h+=`<tr><td class="n">${esc(r.a.nome)}</td>${r.cells.map((c,i)=>`<td>${cell(c,ts[i])}</td>`).join('')}</tr>`;});
+  const S2=ts.map(st);
+  h+=`</tbody><tfoot><tr><td class="n lbl">Média</td>${S2.map(s=>`<td>${fmt(s.m,0)}</td>`).join('')}</tr><tr><td class="n lbl">Desvio</td>${S2.map(s=>`<td>${fmt(s.s,0)}</td>`).join('')}</tr><tr><td class="n lbl">Nota máxima</td>${S2.map(s=>`<td class="${s.teto>=.4?'flag':''}">${fmt(s.teto*100,0)}%</td>`).join('')}</tr><tr><td class="n lbl">Presentes</td>${S2.map(s=>`<td>${s.n}</td>`).join('')}</tr></tfoot></table></div>
+  <div class="legend" style="margin-top:10px">0 <span style="background:color-mix(in oklab,var(--heat) 8%,var(--card));border:1px solid var(--line)"></span><span style="background:color-mix(in oklab,var(--heat) 45%,var(--card))"></span><span style="background:color-mix(in oklab,var(--heat) 90%,var(--card))"></span> 100 pts · <span class="hc f" style="width:18px;height:10px;min-width:0;display:inline-block;margin:0"></span> falta</div></div>`;
+  // leitura do instrutor
+  const ins=[];
+  const hard=ts.map((t,i)=>({t,s:S2[i]})).filter(o=>o.s.n>=3).sort((a,b)=>a.s.m/a.t.max-b.s.m/b.t.max);
+  if(hard.length){const o=hard[0];ins.push(['!',`<b>${MESES_L[+o.t.mes.slice(5)-1]} foi o treino mais exigente</b>: média ${fmt(o.s.m,0)} pts. Vale reaplicar o exercício mais à frente para medir evolução real.`]);}
+  ts.forEach((t,i)=>{if(S2[i].teto>=.4)ins.push(['=',`<b>${MESES_L[+t.mes.slice(5)-1]}: ${fmt(S2[i].teto*100,0)}% fizeram a nota máxima.</b> O treino não separou os atiradores (efeito teto). Para essa série, aumente a dificuldade: menos tempo, mais distância ou alvo reduzido.`]);});
+  const elig=rows.filter(r=>r.tv.length>=4);
+  const best=[...elig].filter(r=>r.tend!=null).sort((a,b)=>b.tend-a.tend)[0];
+  if(best&&best.tend>0)ins.push(['↗',`<b>Maior evolução recente: ${esc(best.a.nome)}</b>, +${fmt(best.tend,1)} pontos de índice por treino nos últimos ${Math.min(6,best.tv.length)} meses.`]);
+  const reg=[...elig].filter(r=>r.reg!=null).sort((a,b)=>a.reg-b.reg)[0];
+  if(reg)ins.push(['≈',`<b>Mais regular: ${esc(reg.a.nome)}</b>. Menor oscilação de desempenho entre os treinos.`]);
+  // por arma, último treino com arma informada
+  const tArma=[...ts].reverse().find(t=>Object.values(RES[t.id]||{}).some(r=>r.arma));
+  let armas='';
+  if(tArma){const g={};Object.values(RES[tArma.id]).forEach(r=>{if(!r.arma)return;(g[r.arma]=g[r.arma]||[]).push(r.pts);});
+    const L=Object.entries(g).map(([a,v])=>({a,m:mean(v),n:v.length})).sort((p,q)=>q.m-p.m);
+    armas=`<div class="panel"><header><h3>Média por arma · ${mesLbl(tArma.mes)}</h3></header><div class="ind">${L.map(o=>`<div class="row"><span>${esc(o.a)} <small class="muted">(${o.n})</small></span><div class="bar plain"><i style="width:${o.m/tArma.max*100}%;background:var(--heat)"></i></div><span class="num r">${fmt(o.m,0)}</span></div>`).join('')}</div><p class="note" style="margin:12px 0 0">Grupos com 1 ou 2 atiradores não permitem conclusão sobre a arma; leia como indício.</p></div>`;}
+  h+=`<div class="cols"><div class="panel"><header><h3>Leitura do instrutor</h3></header><ul class="insights">${ins.map(([i,t])=>`<li><span class="ic">${i}</span><span>${t}</span></li>`).join('')||'<li>Sem dados suficientes.</li>'}</ul></div>${armas}</div></section>`;
+  return h;
+}
+
+const IND=[
+ {k:'nivel',n:'Nível técnico',hi:true,f:v=>fmt(v,0),
+  forte:'Resultado consistentemente acima da média dos treinos da série.',
+  fraco:'Abaixo da média da série. Priorize fundamentos de base (empunhadura, visada e acionamento) antes de buscar velocidade.'},
+ {k:'prec',n:'Precisão fina (X)',hi:true,f:v=>fmt(v,1),
+  forte:'Fecha o grupo no centro do 10 com frequência.',
+  fraco:'Chega ao 10 mas raramente no X. Trabalhe o acionamento do gatilho (tiro em seco com estojo sobre a massa de mira, exercício bola e festim) e o alinhamento fino em alvo reduzido a 4–7 m.'},
+ {k:'reg',n:'Regularidade',hi:false,f:v=>fmt(v,1),
+  forte:'Oscila pouco entre treinos: rotina de tiro estável.',
+  fraco:'Rende muito em alguns meses e cai em outros. Padronize a rotina pré-disparo (pegada, respiração, foco na massa de mira) e repita o mesmo exercício de base no aquecimento.'},
+ {k:'tend',n:'Tendência recente',hi:true,f:v=>(v>0?'+':'')+fmt(v,1),
+  forte:'Em evolução nos últimos treinos.',
+  fraco:'Rendimento em queda nos últimos meses. Revise o básico com o instrutor e confira arma e munição.'},
+ {k:'assid',n:'Assiduidade',hi:true,f:v=>fmt(v*100,0)+'%',
+  forte:'Presente em praticamente todos os treinos.',
+  fraco:'Faltas pesam no ranking: cada treino perdido soma zero.'}
+];
+function pctile(v,arr,hi){if(v==null||arr.length<2)return null;let w=0,e=0;arr.forEach(a=>{if(a==null)return;if(hi?a<v:a>v)w++;else if(a===v)e++;});const n=arr.filter(a=>a!=null).length;return (w+(e-1)/2)/(n-1);}
+
+function vAtirador(){
+  const {ts,rows}=ranking(ui.serie);
+  let h=`<section class="view"><div class="panel"><header><h2>Atirador</h2><span class="sp"></span>${serieChips()}</header>`;
+  if(!rows.length)return h+`<p class="muted">Nenhum atirador na Série ${ui.serie}.</p></div></section>`;
+  if(!ui.atirador||!rows.find(r=>r.a.id===ui.atirador))ui.atirador=rows[0].a.id;
+  h+=`<div class="field" style="max-width:360px"><label for="selAt">Escolha o atirador</label><select id="selAt">${rows.map(r=>`<option value="${r.a.id}" ${r.a.id===ui.atirador?'selected':''}>${r.pos}º · ${esc(r.a.nome)}</option>`).join('')}</select></div></div>`;
+  const r=rows.find(x=>x.a.id===ui.atirador),s=ui.serie;
+  const stt=r.zona==='up'?`<span class="status up">▲ Zona de acesso à Série ${prevS(s)}</span>`:r.zona==='dn'?`<span class="status dn">▼ Zona de descenso para a Série ${nextS(s)}</span>`:`<span class="status mid">Permanência</span>`;
+  const gapUp=rows.find((x,i)=>i===(+S.config.sobem)-1);
+  const falta=(s!=='A'&&gapUp&&r.zona!=='up')?`<p class="small muted" style="margin:6px 0 0">Faltam <b class="num">${gapUp.pts-r.pts}</b> pontos para alcançar o ${S.config.sobem}º colocado (${esc(gapUp.a.nome)}).</p>`:'';
+  h+=`<div class="panel"><div class="prof-head"><span class="sbadge" style="${sc(s)}">${s}</span><h2>${esc(r.a.nome)}</h2><span class="pos" style="font-size:1.6rem">${r.pos}º</span>${stt}</div>${falta}
+   <div class="kpis" style="margin-top:14px"><div><small>Pontos no ciclo</small><b>${r.pts}</b></div><div><small>Média por treino</small><b>${fmt(r.n?r.pts/r.n:null,1)}</b></div><div><small>X no ciclo</small><b>${r.x}</b></div><div><small>Índice (50 = média)</small><b>${fmt(r.nivel,0)}</b></div><div><small>Treinos</small><b>${r.n}/${ts.length}</b></div><div><small>Arma</small><b style="font-size:1.05rem">${esc(r.a.arma||'–')}</b></div></div>
+   <div style="margin-top:16px">${lineChart(r,ts)}</div></div>`;
+  // fortes e fracos
+  const peers=rows.filter(x=>x.n>=3);
+  const P=IND.map(d=>({d,v:r[d.k],p:pctile(r[d.k],peers.map(x=>x[d.k]),d.hi)}));
+  const ok=r.n>=3;
+  const fortes=ok?P.filter(o=>o.p!=null&&o.p>=.65).sort((a,b)=>b.p-a.p).slice(0,3):[];
+  const fracos=ok?P.filter(o=>o.p!=null&&o.p<=.35).sort((a,b)=>a.p-b.p).slice(0,3):[];
+  // último treino detalhado
+  const lastI=[...r.cells.keys()].reverse().find(i=>r.cells[i]&&r.cells[i].z10!=null);
+  const extra=[];
+  if(lastI!=null){const c=r.cells[lastI],t=ts[lastI],hit=ZONAS.reduce((a,z)=>a+(c['z'+z]||0),0),miss=t.disparos-hit;
+    if(miss>=3)fracos.push({d:{n:`Disparos sem pontuar (${mesLbl(t.mes)})`,fraco:`${miss} de ${t.disparos} disparos não pontuaram${t.tempo?` no limite de ${t.tempo}s`:''}. Indica estouro de tempo ou tiro fora da zona: treine saque e primeiro disparo com cronômetro e só aumente o ritmo depois de fechar o grupo.`},p:null});
+    else if(miss===0&&c.x>=5)fortes.push({d:{n:`Controle sob tempo (${mesLbl(t.mes)})`,forte:`Todos os disparos pontuaram, com ${c.x} no X.`},p:null});}
+  const li=(o,f)=>`<li><b>${o.d.n}${o.p!=null?` <span class="small muted num">· melhor que ${fmt(o.p*100,0)}% da série</span>`:''}</b><p>${f?o.d.forte:o.d.fraco}</p></li>`;
+  h+=`<div class="cols"><div class="panel"><header><h3>Diagnóstico</h3><span class="sp small muted">comparado aos ${peers.length} atiradores da série com 3+ treinos</span></header>${!ok?`<p class="muted">Com menos de 3 treinos o diagnóstico ainda não é confiável.</p>`:`<div class="sw"><div style="--c:var(--up)"><h3>Pontos fortes</h3><ul>${fortes.map(o=>li(o,true)).join('')||'<li class="muted small">Nenhum indicador se destaca acima da série.</li>'}</ul></div><div style="--c:var(--down)"><h3>A desenvolver</h3><ul>${fracos.map(o=>li(o,false)).join('')||'<li class="muted small">Nenhum ponto crítico frente à série.</li>'}</ul></div></div>`}</div>`;
+  h+=`<div class="panel"><header><h3>Indicadores</h3></header><div class="ind">${P.map(o=>`<div class="row"><span>${o.d.n}</span><div class="bar"><i style="width:${o.p==null?0:Math.max(3,o.p*100)}%;background:${o.p==null?'var(--line)':o.p>=.65?'var(--up)':o.p<=.35?'var(--down)':'var(--ink3)'}"></i></div><span class="num r small">${o.v==null?'–':o.d.f(o.v)}</span></div>`).join('')}</div><p class="note" style="margin:12px 0 0">Barra = posição relativa na série (traço central = mediana). Regularidade mostra o desvio do índice: quanto menor, melhor.</p></div></div>`;
+  // fundamentos e tipos
+  const fmap={},tmap={};r.cells.forEach((c,i)=>{if(!c)return;const t=ts[i],tv=tScore(t,c.pts);(t.fundamentos||[]).forEach(f=>(fmap[f]=fmap[f]||[]).push(tv));(tmap[t.tipo]=tmap[t.tipo]||[]).push(tv);});
+  const fl=Object.entries(fmap).map(([f,v])=>({f,m:mean(v),n:v.length})).sort((a,b)=>b.m-a.m);
+  const tl=Object.entries(tmap).map(([f,v])=>({f,m:mean(v),n:v.length})).sort((a,b)=>b.m-a.m);
+  const barT=o=>`<div class="row"><span>${esc(o.f)} <small class="muted">(${o.n})</small></span><div class="bar"><i style="width:${Math.max(3,Math.min(100,(o.m-20)/60*100))}%;background:${o.m>=55?'var(--up)':o.m<=45?'var(--down)':'var(--ink3)'}"></i></div><span class="num r small">${fmt(o.m,0)}</span></div>`;
+  const tgt=lastI!=null?`<div class="panel"><header><h3>Impactos · ${mesLbl(ts[lastI].mes)}</h3><span class="sp small muted">${esc(ts[lastI].alvo||'')}</span></header><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">${targetSvg(r.cells[lastI],ts[lastI])}</div></div>`:'';
+  h+=`<div class="cols"><div class="panel"><header><h3>Por fundamento treinado</h3><span class="sp small muted">índice médio · 50 = média</span></header>${fl.length?`<div class="ind">${fl.map(barT).join('')}</div>`:''}<p class="note" style="margin:12px 0 0">${fl.length&&Math.max(...fl.map(o=>o.n))>=3?'Fundamentos com 3+ treinos já permitem comparação.':'Base ainda pequena: cada treino cadastrado com seus fundamentos em <a href="#treinos">Treinos</a> entra aqui. Com 3 ou mais treinos por fundamento a comparação fica confiável.'}</p>
+   <h3 style="margin-top:18px">Por tipo de treino</h3><div class="ind" style="margin-top:8px">${tl.map(barT).join('')}</div></div>${tgt}</div></section>`;
+  return h;
+}
+
+function blankRes(t,a){return {treino:t.id,atirador:a.id,arma:a.arma||'',x:0,z10:0,z9:0,z8:0,z7:0,z6:0,pts:0};}
+function vLancar(){
+  const ts=treinosSerie(ui.serie).slice().reverse();
+  let h=`<section class="view"><div class="panel"><header><h2>Lançar resultado</h2><span class="sp"></span>${serieChips()}</header>`;
+  if(!ts.length)return h+`<p class="muted">Nenhum treino na Série ${ui.serie}. <a href="#treinos">Crie o treino do mês</a> primeiro.</p></div></section>`;
+  if(!ui.treino||!ts.find(t=>t.id===ui.treino))ui.treino=ts[0].id;
+  const t=ts.find(x=>x.id===ui.treino);
+  h+=`<div class="grid2"><div class="field"><label for="selT">Treino</label><select id="selT">${ts.map(x=>`<option value="${x.id}" ${x.id===t.id?'selected':''}>${mesLbl(x.mes)} · ${esc(x.tipo)}</option>`).join('')}</select></div></div>
+   <div class="spec" style="margin-top:10px">${[t.alvo,t.distancia&&t.distancia+' m',t.tempo&&t.tempo+' s',t.angulo,t.empunhadura&&'Emp. '+t.empunhadura,t.disparos+' disparos'].filter(Boolean).map(esc).join('<span>·</span>')}</div></div>`;
+  const ats=S.atiradores.filter(a=>a.ativo&&serieDe(a.id)===ui.serie).sort((a,b)=>a.nome.localeCompare(b.nome));
+  const done=ats.filter(a=>(RES[t.id]||{})[a.id]).length;
+  h+=`<div class="cols"><div class="panel" id="editor">${editorHtml(t)}</div><div class="panel"><header><h3>Chamada</h3><span class="sp small muted num">${done}/${ats.length} lançados</span></header><div class="roster">${ats.map(a=>{const c=(RES[t.id]||{})[a.id];return `<button data-pick="${a.id}" aria-current="${ui.edit===a.id}"><span><b>${esc(a.nome)}</b><br><small class="muted">${esc(a.arma||'')}</small></span>${c?`<span class="p">${c.pts}</span>`:`<span class="pend">pendente</span>`}</button>`;}).join('')}</div></div></div></section>`;
+  return h;
+}
+function editorHtml(t){
+  const a=BYID[ui.edit];
+  if(!a)return `<header><h3>Selecione um atirador</h3></header><p class="muted">Toque em um nome da chamada para lançar ou corrigir o resultado.</p>`;
+  const c=ui.draft;
+  const hit=ZONAS.reduce((s,z)=>s+(c['z'+z]||0),0),pts=ZONAS.reduce((s,z)=>s+z*(c['z'+z]||0),0),miss=t.disparos-hit;
+  let e='';if(hit>t.disparos)e=`Soma de impactos (${hit}) maior que os ${t.disparos} disparos do exercício.`;else if(c.x>(c.z10||0))e='X não pode ser maior que os impactos no 10.';
+  const row=(k,lab,sub)=>`<div class="step"><span class="z">${lab}<small>${sub}</small></span><button data-dec="${k}" aria-label="Diminuir ${lab}">−</button><output>${c[k]||0}</output><button data-inc="${k}" aria-label="Aumentar ${lab}">+</button></div>`;
+  return `<header><h3>${esc(a.nome)}</h3><span class="sp small muted">${mesLbl(t.mes)}</span></header>
+   <div class="field" style="margin-bottom:12px"><label for="arma">Arma usada</label><input type="text" id="arma" value="${esc(c.arma||'')}" placeholder="ex.: G22"></div>
+   <div class="steps">${row('x','X','centro do 10')}${ZONAS.map(z=>row('z'+z,z,'impactos')).join('')}</div>
+   <div class="totbox" style="margin-top:12px"><b>${pts}</b><span>pontos<br><small class="muted">${hit} de ${t.disparos} impactos${miss>0?` · ${miss} sem pontuar`:''}</small></span></div>
+   ${e?`<p class="err">${e}</p>`:''}
+   <div class="btns" style="margin-top:12px"><button class="btn pri" id="salvar" ${e?'disabled':''}>Salvar resultado</button><button class="btn ghost" id="cancelar">Cancelar</button></div>`;
+}
+
+function vTreinos(){
+  const all=S.treinos.filter(t=>t.serie===ui.serie).sort((a,b)=>b.mes.localeCompare(a.mes));
+  const ed=ui.editTreino;
+  let h=`<section class="view"><div class="panel"><header><h2>Treinos · Série ${ui.serie}</h2><span class="sp"></span>${serieChips()}</header><p class="muted small" style="margin:0">Cada treino guarda a ficha do exercício e os fundamentos trabalhados. É isso que permite ler pontos fortes e fracos por fundamento.</p><div class="btns" style="margin-top:12px"><button class="btn pri" id="novoT">Novo treino</button></div></div>`;
+  if(ed)h+=`<div class="panel">${treinoForm(ed)}</div>`;
+  h+=`<div class="panel"><div class="tlist">${all.map(t=>{const s=st(t);return `<div class="tcard"><div class="h"><b>${mesLbl(t.mes)}</b><span>${esc(t.tipo)}</span><span class="sp small muted num">${s.n} presentes · média ${fmt(s.m,0)}${s.teto>=.4?' · <span class="flag">teto</span>':''}</span></div><div class="spec">${[t.alvo,t.distancia&&t.distancia+' m',t.tempo&&t.tempo+' s',t.angulo,t.empunhadura&&'Emp. '+t.empunhadura,t.disparos+' disparos'].filter(Boolean).map(esc).join(' · ')||'<span>ficha não informada</span>'}</div>${t.fundamentos.length?`<div class="fund">${t.fundamentos.map(f=>`<span class="tag">${esc(f)}</span>`).join('')}</div>`:''}${t.obs?`<div class="small muted">${esc(t.obs)}</div>`:''}<div><button class="btn" data-edt="${t.id}">Editar ficha</button></div></div>`;}).join('')||'<p class="muted">Nenhum treino cadastrado.</p>'}</div></div></section>`;
+  return h;
+}
+function treinoForm(t){
+  return `<header><h3>${S.treinos.find(x=>x.id===t.id)?'Editar treino':'Novo treino'}</h3></header><div class="grid2">
+  <div class="field"><label for="tMes">Mês</label><input type="month" id="tMes" value="${t.mes}"></div>
+  <div class="field"><label for="tSerie">Série</label><select id="tSerie">${SERIES.map(s=>`<option ${s===t.serie?'selected':''}>${s}</option>`).join('')}</select></div>
+  <div class="field"><label for="tTipo">Tipo de treino</label><select id="tTipo">${[...new Set([...TIPOS,t.tipo])].map(s=>`<option ${s===t.tipo?'selected':''}>${esc(s)}</option>`).join('')}</select></div>
+  <div class="field"><label for="tAlvo">Alvo</label><input type="text" id="tAlvo" value="${esc(t.alvo)}" placeholder="A4 (Moreira)"></div>
+  <div class="field"><label for="tDist">Distância (m)</label><input type="number" id="tDist" value="${esc(t.distancia)}" inputmode="decimal"></div>
+  <div class="field"><label for="tTempo">Tempo (s)</label><input type="number" id="tTempo" value="${esc(t.tempo)}" inputmode="decimal"></div>
+  <div class="field"><label for="tAng">Ângulo / posição</label><input type="text" id="tAng" value="${esc(t.angulo)}" placeholder="45º"></div>
+  <div class="field"><label for="tEmp">Empunhadura</label><select id="tEmp">${['','Dupla','Mão forte','Mão fraca'].map(s=>`<option ${s===t.empunhadura?'selected':''}>${s}</option>`).join('')}</select></div>
+  <div class="field"><label for="tDisp">Disparos</label><input type="number" id="tDisp" value="${t.disparos}" inputmode="numeric"></div>
+  </div><div class="field" style="margin-top:12px"><label>Fundamentos trabalhados</label><div class="fund" id="tFund">${FUNDAMENTOS.map(f=>`<button type="button" aria-pressed="${t.fundamentos.includes(f)}">${esc(f)}</button>`).join('')}</div></div>
+  <div class="field" style="margin-top:12px"><label for="tObs">Observações</label><textarea id="tObs">${esc(t.obs)}</textarea></div>
+  <div class="btns" style="margin-top:12px"><button class="btn pri" id="salvarT">Salvar treino</button><button class="btn ghost" id="cancT">Cancelar</button></div>`;
+}
+
+function vImportar(){
+  let h=`<section class="view"><div class="panel"><header><h2>Importar planilha</h2></header>
+  <label class="drop" id="drop"><b>Escolha ou arraste o arquivo</b><span class="small muted">PDF da planilha de treino · Excel (.xlsx/.xls) ou CSV de treino ou do ranking geral</span><input type="file" id="arq" accept=".pdf,.xlsx,.xls,.csv" style="max-width:100%"></label>
+  <p class="note" style="margin:12px 0 0">Nada é gravado antes da conferência. Os nomes são casados com o cadastro; quem não existir pode ser cadastrado na hora.</p></div>`;
+  const I=ui.imp;
+  if(I&&I.erro)h+=`<div class="panel"><p class="err" style="margin:0">${esc(I.erro)}</p></div>`;
+  if(I&&I.tipo==='treino'){
+    const m=I.meta;
+    h+=`<div class="panel"><header><h3>Conferência · ${esc(I.arquivo)}</h3></header><div class="grid2">
+    <div class="field"><label for="iMes">Mês</label><input type="month" id="iMes" value="${m.mes}"></div>
+    <div class="field"><label for="iSerie">Série</label><select id="iSerie">${SERIES.map(s=>`<option ${s===m.serie?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="field"><label for="iTipo">Tipo</label><select id="iTipo">${TIPOS.map(s=>`<option ${s===m.tipo?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="field"><label for="iAlvo">Alvo</label><input type="text" id="iAlvo" value="${esc(m.alvo)}"></div>
+    <div class="field"><label for="iDist">Distância (m)</label><input type="number" id="iDist" value="${esc(m.distancia)}"></div>
+    <div class="field"><label for="iTempo">Tempo (s)</label><input type="number" id="iTempo" value="${esc(m.tempo)}"></div>
+    <div class="field"><label for="iAng">Ângulo / posição</label><input type="text" id="iAng" value="${esc(m.angulo)}"></div>
+    <div class="field"><label for="iEmp">Empunhadura</label><input type="text" id="iEmp" value="${esc(m.empunhadura)}"></div></div>
+    <div class="tscroll" style="margin-top:14px"><table><thead><tr><th>Nome no arquivo</th><th>Cadastro</th><th>Arma</th><th class="r">X</th>${ZONAS.map(z=>`<th class="r">${z}</th>`).join('')}<th class="r">Pts</th><th>Conferência</th></tr></thead><tbody>${I.rows.map((r,i)=>{const pts=ZONAS.reduce((s,z)=>s+z*(r.z[z]||0),0);const ok=r.total==null||r.total===pts;return `<tr><td>${esc(r.nome)}</td><td><select data-map="${i}">${matchOpts(r)}</select></td><td class="mono">${esc(r.arma||'')}</td><td class="r num">${r.x}</td>${ZONAS.map(z=>`<td class="r num">${r.z[z]||0}</td>`).join('')}<td class="r num"><b>${pts}</b></td><td>${ok?'<span class="ok">confere</span>':`<span class="err">total do arquivo: ${r.total}</span>`}</td></tr>`;}).join('')}</tbody></table></div>
+    <div class="btns" style="margin-top:14px"><button class="btn pri" id="confImp">Gravar ${I.rows.length} resultados</button><button class="btn ghost" id="descImp">Descartar</button></div></div>`;
+  }
+  if(I&&I.tipo==='ranking'){
+    h+=`<div class="panel"><header><h3>Ranking geral · ${esc(I.arquivo)}</h3></header><div class="grid2"><div class="field"><label for="iSerie">Série</label><select id="iSerie">${SERIES.map(s=>`<option ${s===I.serie?'selected':''}>${s}</option>`).join('')}</select></div><div class="field"><label for="iAno">Ano</label><input type="number" id="iAno" value="${I.ano}"></div></div>
+    <p class="small muted">${I.rows.length} atiradores · meses com dados: ${I.meses.map(m=>MESES[m-1]).join(', ')}. Cria um treino por mês (tipo Tiro Defensivo, ficha em branco) com pontos e X.</p>
+    <div class="tscroll"><table><thead><tr><th>Nome no arquivo</th><th>Cadastro</th><th class="r">Treinos</th><th class="r">X</th><th class="r">Pontos</th></tr></thead><tbody>${I.rows.map((r,i)=>`<tr><td>${esc(r.nome)}</td><td><select data-map="${i}">${matchOpts(r)}</select></td><td class="r num">${Object.keys(r.m).length}</td><td class="r num">${Object.values(r.m).reduce((s,v)=>s+v.x,0)}</td><td class="r num">${Object.values(r.m).reduce((s,v)=>s+v.pts,0)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="btns" style="margin-top:14px"><button class="btn pri" id="confImp">Gravar histórico</button><button class="btn ghost" id="descImp">Descartar</button></div></div>`;
+  }
+  return h+'</section>';
+}
+function matchOpts(r){
+  const k=norm(r.nome),hit=S.atiradores.find(a=>norm(a.nome)===k);
+  r.map=r.map??(hit?hit.id:'__novo');
+  return `<option value="__novo" ${r.map==='__novo'?'selected':''}>+ cadastrar “${esc(r.nome)}”</option><option value="__ign" ${r.map==='__ign'?'selected':''}>ignorar linha</option>`+S.atiradores.slice().sort((a,b)=>a.nome.localeCompare(b.nome)).map(a=>`<option value="${a.id}" ${r.map===a.id?'selected':''}>${esc(a.nome)} (${a.serie})</option>`).join('');
+}
+
+function vAjustes(){
+  const c=S.config;
+  return `<section class="view"><div class="cols"><div class="panel"><header><h2>Ajustes</h2></header><div class="grid2">
+   <div class="field"><label for="cNome">Nome da equipe</label><input type="text" id="cNome" value="${esc(c.nome)}"></div>
+   <div class="field"><label for="cCiclo">Ciclo (ano)</label><input type="number" id="cCiclo" value="${esc(c.ciclo)}"></div>
+   <div class="field"><label for="cSobem">Sobem por série</label><input type="number" id="cSobem" value="${c.sobem}" min="0"></div>
+   <div class="field"><label for="cDescem">Caem por série</label><input type="number" id="cDescem" value="${c.descem}" min="0"></div>
+   <div class="field"><label for="cDes">Desempate</label><select id="cDes"><option value="X" ${c.desempate==='X'?'selected':''}>Mais X</option><option value="treinos" ${c.desempate!=='X'?'selected':''}>Mais treinos</option></select></div></div>
+   <div class="field" style="margin-top:14px"><label for="cLogo">Logomarca (PNG, SVG ou JPG)</label><div style="display:flex;gap:12px;align-items:center"><div class="brand-mark">${logoMark()}</div><input type="file" id="cLogo" accept="image/*"></div></div>
+   <div class="btns" style="margin-top:14px"><button class="btn pri" id="salvarC">Salvar ajustes</button></div></div>
+   <div class="panel"><header><h3>Cadastrar atirador</h3></header><div class="grid2"><div class="field"><label for="nNome">Nome de guerra</label><input type="text" id="nNome"></div><div class="field"><label for="nSerie">Série</label><select id="nSerie">${SERIES.map(s=>`<option ${s===ui.serie?'selected':''}>${s}</option>`).join('')}</select></div><div class="field"><label for="nArma">Arma principal</label><input type="text" id="nArma" placeholder="G22"></div></div><div class="btns" style="margin-top:12px"><button class="btn pri" id="addAt">Cadastrar</button></div></div></div>
+   ${adminPanel()}
+   <div class="panel"><header><h3>Fechamento do ciclo</h3></header><p class="muted small" style="margin-top:0">Move os ${c.sobem} primeiros de cada série para cima e os ${c.descem} últimos para baixo, conforme o ranking atual. Use só ao encerrar o ciclo.</p>${fechamentoHtml()}</div>
+   <div class="panel"><header><h3>Implantação no Google Planilhas</h3></header><ol class="steps-guide"><li>Importe <code>CCT_Base.xlsx</code> no Google Drive e abra com o Google Planilhas (Arquivo › Salvar como Planilhas Google).</li><li>Na planilha: <b>Extensões › Apps Script</b>. Cole <code>Code.gs</code> e crie um arquivo HTML chamado <code>Index</code> com o conteúdo de <code>Index.html</code>.</li><li>Rode a função <code>preparar</code> uma vez e autorize.</li><li><b>Implantar › Nova implantação › App da Web</b>. Executar como: <b>Eu</b>. Quem pode acessar: <b>Qualquer pessoa</b>.</li><li>Abra o link: o responsável pela planilha entra como administrador automaticamente e cadastra os demais aqui, com e-mail e PIN.</li><li>A consulta do ranking e das copas fica aberta a quem tiver o link.</li></ol>
+   <h3 style="margin-top:16px">App no celular (gratuito)</h3><ol class="steps-guide"><li>Crie um repositório no GitHub e envie os arquivos da pasta <code>cct-app</code>.</li><li>Em <code>config.js</code>, cole a URL do App da Web (termina em <code>/exec</code>).</li><li>No repositório: <b>Settings › Pages</b>, origem <b>main / root</b>. O endereço fica no formato <code>usuario.github.io/cct</code>.</li><li>No celular, abra o endereço. Android (Chrome): menu › <b>Instalar app</b>. iPhone (Safari): Compartilhar › <b>Adicionar à Tela de Início</b>.</li><li>Pelo app, administradores entram com e-mail e PIN. O responsável cria o próprio PIN no menu da planilha <b>CCT › Definir administrador</b>.</li></ol><p class="note" style="margin:12px 0 0">Esta página está em <b>${GAS?'modo Google Planilhas':'modo demonstração'}</b>${GAS?'.':': alterações ficam salvas apenas neste navegador.'} ${GAS?'':'<button class="btn ghost small" id="resetD">Restaurar dados originais</button>'}</p></div></section>`;
+}
+/* ---------- copas (mata-mata) ---------- */
+const listaIds=v=>Array.isArray(v)?v:String(v||'').split(';').map(x=>x.trim()).filter(x=>x!=='').map(x=>x==='-'?null:x);
+function copaNorm(c){let dec=c.decisoes;if(typeof dec==='string'){try{dec=JSON.parse(dec||'{}');}catch(e){dec={};}}return {...c,inicio:String(c.inicio).slice(0,7),participantes:listaIds(c.participantes),ranking:listaIds(c.ranking).filter(Boolean),decisoes:dec||{},status:c.status||'ativa'};}
+function copaOut(c){return {...c,participantes:c.participantes.map(x=>x||'-').join(';'),ranking:c.ranking.join(';'),decisoes:JSON.stringify(c.decisoes||{})};}
+function addMes(m,k){const [y,mm]=m.split('-').map(Number);const d=new Date(y,mm-1+k,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function resMes(aid,mes){for(const t of S.treinos){if(t.mes!==mes)continue;const r=(RES[t.id]||{})[aid];if(r)return r;}return null;}
+function mesLancado(aid,mes){const a=BYID[aid];return S.treinos.some(t=>t.mes===mes&&(!a||t.serie===a.serie)&&Object.keys(RES[t.id]||{}).length>0);}
+function nomeFase(n){return {2:'Final',4:'Semifinal',8:'Quartas de final',16:'Oitavas de final',32:'16 avos de final',64:'32 avos de final'}[n]||('Fase com '+n);}
+function duelo(c,k,j,a,b){
+  const key=k+'-'+j,mes=addMes(c.inicio,k),o={key,mes,a,b,ra:null,rb:null,w:undefined,st:''};
+  if(a===undefined||b===undefined){o.st='Aguardando a fase anterior';return o;}
+  if(a===null||b===null){o.w=a||b;o.bye=true;o.st='Passa direto (melhor colocado no Ranking Geral)';return o;}
+  o.ra=resMes(a,mes);o.rb=resMes(b,mes);
+  const d=c.decisoes[key];
+  if(d===a||d===b){o.w=d;o.st='Vencedor definido pelo administrador';o.manual=true;return o;}
+  const la=o.ra||mesLancado(a,mes),lb=o.rb||mesLancado(b,mes);
+  if(!o.ra&&!o.rb){if(la&&lb){const ia=c.ranking.indexOf(a),ib=c.ranking.indexOf(b);o.w=(ib<0||(ia>=0&&ia<ib))?a:b;o.st='Ambos ausentes: avança o melhor colocado no sorteio';o.wo=true;}else o.st='Aguardando o treino de '+mesLbl(mes);return o;}
+  if(!o.ra||!o.rb){if((o.ra&&lb)||(o.rb&&la)){o.w=o.ra?a:b;o.st='Vitória por W.O. (adversário ausente)';o.wo=true;}else o.st='Aguardando o resultado de '+mesLbl(mes);return o;}
+  const crit=[['pts','pontos'],['x','X'],['z10','impactos no 10'],['z9','impactos no 9'],['z8','impactos no 8'],['z7','impactos no 7'],['z6','impactos no 6']];
+  for(let i=0;i<crit.length;i++){const [f,lab]=crit[i],va=o.ra[f]||0,vb=o.rb[f]||0;if(va!==vb){o.w=va>vb?a:b;o.st=i===0?'Vitória por pontos':'Empate em pontos, decidido por '+lab;return o;}}
+  o.st='Empate total: o administrador define o vencedor';o.empate=true;return o;
+}
+function chave(c){
+  const fases=[];let slots=c.participantes.slice();let k=0;
+  while(slots.length>=2){const ds=[];for(let j=0;j<slots.length/2;j++)ds.push(duelo(c,k,j,slots[2*j],slots[2*j+1]));fases.push({n:slots.length,mes:addMes(c.inicio,k),ds});slots=ds.map(d=>d.w);k++;}
+  const campeao=slots[0]||null;
+  const atual=fases.find(f=>f.ds.some(d=>d.w===undefined));
+  return {fases,campeao,atual};
+}
+/* Ranking usado para isenções e desempate de ausência nas copas:
+   o do ciclo atual; se ele ainda não tiver treinos, o do ciclo anterior. */
+function rankingRef(){let g=rankingGeral();if(!g.meses.length){const p=rankingGeral(String(+S.config.ciclo-1));if(p.meses.length)g=p;}return g;}
+function rnd(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n;}
+function embaralhar(v){v=v.slice();for(let i=v.length-1;i>0;i--){const j=rnd(i+1);[v[i],v[j]]=[v[j],v[i]];}return v;}
+function sortearChave(ids){
+  const rk=rankingRef().rows.map(r=>r.a.id);
+  const ord=ids.slice().sort((a,b)=>rk.indexOf(a)-rk.indexOf(b));
+  let P=2;while(P<ord.length)P*=2;
+  const nb=P-ord.length,pares=ord.slice(0,nb).map(x=>rnd(2)?[x,null]:[null,x]);
+  const resto=embaralhar(ord.slice(nb));for(let i=0;i<resto.length;i+=2)pares.push([resto[i],resto[i+1]]);
+  return {participantes:embaralhar(pares).flat(),ranking:ord};
+}
+function nomeAt(id){const a=BYID[id];return a?a.nome:'(removido)';}
+function dlRow(d,id,r){
+  if(id===null)return `<div class="dl bye"><span></span><span class="n">isento</span><span></span></div>`;
+  if(id===undefined)return `<div class="dl"><span></span><span class="n muted" style="font-weight:400">a definir</span><span></span></div>`;
+  const a=BYID[id],cls=d.w===undefined?'':(d.w===id?'win':'lose');
+  return `<div class="dl ${cls}"><span class="sbadge" style="${sc(a?a.serie:'B')}">${a?a.serie:'?'}</span><span class="n">${esc(nomeAt(id))}</span><span class="sc2">${r?`${r.pts} · X${r.x}`:(d.bye||d.w===undefined?'':'falta')}</span></div>`;
+}
+function vCopas(){
+  const cs=S.copas.slice().sort((a,b)=>String(b.criado_em||b.inicio).localeCompare(String(a.criado_em||a.inicio)));
+  let h=`<section class="view"><div class="panel"><header><h2>Copas</h2>${AUTH.admin&&!ui.novaCopa?`<span class="sp"></span><button class="btn pri" id="novaCopa">Nova copa</button>`:''}</header><p class="muted small" style="margin:0">Mata-mata com chave sorteada. Cada fase usa o treino do mês como duelo: vence quem fizer mais pontos; no empate, mais X e depois mais impactos no 10. Quem falta perde por W.O. As copas não alteram o ranking das séries.</p></div>`;
+  if(ui.novaCopa&&AUTH.admin)h+=formCopa();
+  if(!cs.length&&!ui.novaCopa)return h+`<div class="panel"><p class="muted" style="margin:0">Nenhuma copa criada ainda.${AUTH.admin?' Use “Nova copa” para sortear a primeira chave.':''}</p></div></section>`;
+  if(!cs.length)return h+'</section>';
+  if(!ui.copa||!cs.find(c=>c.id===ui.copa))ui.copa=cs[0].id;
+  h+=`<div class="panel"><div class="copas">${cs.map(c=>{const k=chave(c),n=c.participantes.filter(Boolean).length;return `<button class="copa-card" data-copa="${esc(c.id)}" aria-current="${c.id===ui.copa}"><b>${esc(c.nome)}</b><span class="small muted">${n} atiradores · início ${mesLbl(c.inicio)}</span><span class="small">${k.campeao?`Campeão: <b style="font-size:inherit;font-family:inherit">${esc(nomeAt(k.campeao))}</b>`:k.atual?`Em andamento · ${nomeFase(k.atual.n)} (${mesLbl(k.atual.mes)})`:''}</span></button>`;}).join('')}</div></div>`;
+  const c=cs.find(x=>x.id===ui.copa),k=chave(c);
+  h+=`<div class="panel"><header><h3>${esc(c.nome)}</h3><span class="sp small muted">${k.fases.length} fases · ${mesLbl(c.inicio)} a ${mesLbl(addMes(c.inicio,k.fases.length-1))}</span></header>`;
+  if(k.campeao){const a=BYID[k.campeao],f=k.fases[k.fases.length-1].ds[0],r=f.w===f.a?f.ra:f.rb;h+=`<div class="champ" style="margin-bottom:14px"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="15" fill="none" stroke="var(--sA)" stroke-width="2.5"/><circle cx="17" cy="17" r="9" fill="none" stroke="var(--sA)" stroke-width="2.5"/><circle cx="17" cy="17" r="3.5" fill="var(--sA)"/></svg><span><span class="lbl">Campeão</span><br><b>${esc(nomeAt(k.campeao))}</b></span><span class="small muted">Série ${a?a.serie:'?'}${r?` · final com ${r.pts} pts e ${r.x} X`:''}</span></div>`;}
+  h+=`<div class="bracket">${k.fases.map((f,fi)=>`<div class="fase"><div class="fh"><b>${nomeFase(f.n)}</b><span class="small muted">${mesLbl(f.mes)}</span></div><div class="fl">${f.ds.map(d=>{
+    const can=AUTH.admin&&d.a&&d.b&&!d.bye,open=ui.decide===c.id+'|'+d.key;
+    const act=can?(open?`<span class="act"><button class="btn sm" data-dec="${d.a}">${esc(nomeAt(d.a))}</button><button class="btn sm" data-dec="${d.b}">${esc(nomeAt(d.b))}</button>${d.manual?`<button class="btn sm ghost" data-dec="">Automático</button>`:''}<button class="btn sm ghost" data-dec="__x">Fechar</button></span>`:`<span class="act"><button class="btn sm ghost" data-decide="${d.key}">${d.empate?'Definir vencedor':'Alterar'}</button></span>`):'';
+    return `<div class="duel ${d.w===undefined?'pend':''}">${dlRow(d,d.a,d.ra)}${dlRow(d,d.b,d.rb)}<div class="dst ${d.empate?'alert':''}"><span>${esc(d.st)}</span>${act}</div></div>`;}).join('')}</div></div>`).join('')}</div>`;
+  if(AUTH.admin)h+=ui.excluir===c.id?`<div class="btns" style="margin-top:14px"><span class="small">Excluir a copa “${esc(c.nome)}”? Os treinos e o ranking não são afetados.</span><button class="btn pri" id="excSim">Excluir copa</button><button class="btn ghost" id="excNao">Cancelar</button></div>`:`<div class="btns" style="margin-top:14px"><button class="btn ghost" id="excCopa">Excluir copa</button></div>`;
+  h+=`<p class="note" style="margin:12px 0 0">Isentos da 1ª fase são os mais bem colocados no Ranking Geral no dia do sorteio. Se os dois atiradores faltarem, avança o mais bem colocado.</p></div></section>`;
+  return h;
+}
+function formCopa(){
+  const f=ui.novaCopa;
+  const ats=S.atiradores.filter(a=>a.ativo);
+  const sel=new Set(f.ids);
+  if(f.prev){
+    const P=f.prev.participantes.length,fases=Math.log2(P);
+    const pares=[];for(let i=0;i<P;i+=2)pares.push([f.prev.participantes[i],f.prev.participantes[i+1]]);
+    const fake={w:undefined};
+    return `<div class="panel"><header><h3>Chave sorteada · ${esc(f.nome)}</h3><span class="sp small muted">${f.ids.length} atiradores · ${fases} fases · ${mesLbl(f.inicio)} a ${mesLbl(addMes(f.inicio,fases-1))}</span></header>
+    <div class="copas">${pares.map(([a,b],i)=>`<div class="duel"><div class="dst" style="border-top:none;border-bottom:1px solid var(--line)"><b>Duelo ${i+1}</b><span>${mesLbl(f.inicio)}</span></div>${dlRow(fake,a,null)}${dlRow(fake,b,null)}</div>`).join('')}</div>
+    <div class="btns" style="margin-top:14px"><button class="btn pri" id="cpConf">Confirmar e publicar copa</button><button class="btn" id="cpResort">Sortear de novo</button><button class="btn ghost" id="cpVolta">Voltar</button></div></div>`;
+  }
+  let P=2;while(P<f.ids.length)P*=2;
+  const info=f.ids.length>=2?`${f.ids.length} selecionados → chave de ${P}, ${Math.log2(P)} fases (${mesLbl(f.inicio)} a ${mesLbl(addMes(f.inicio,Math.log2(P)-1))})${P-f.ids.length?`, ${P-f.ids.length} isento${P-f.ids.length>1?'s':''} na 1ª fase pelo Ranking Geral de ${rankingRef().ciclo}`:''}`:'Selecione ao menos 2 atiradores';
+  return `<div class="panel"><header><h3>Nova copa</h3></header><div class="grid2">
+   <div class="field"><label for="cpNome">Nome da copa</label><input type="text" id="cpNome" value="${esc(f.nome)}" placeholder="Copa CCT 2027"></div>
+   <div class="field"><label for="cpIni">Mês da 1ª fase</label><input type="month" id="cpIni" value="${f.inicio}"></div></div>
+   <div class="pick" style="margin-top:14px">${SERIES.map(s=>{const L=ats.filter(a=>a.serie===s).sort((a,b)=>a.nome.localeCompare(b.nome));if(!L.length)return '';const all=L.every(a=>sel.has(a.id));
+     return `<fieldset><legend><span class="sbadge" style="${sc(s)}">${s}</span>Série ${s}<button type="button" class="btn sm ghost" data-cpall="${s}">${all?'Desmarcar todos':'Marcar todos'}</button></legend><div class="ck">${L.map(a=>`<label><input type="checkbox" data-cpid="${a.id}" ${sel.has(a.id)?'checked':''}>${esc(a.nome)}</label>`).join('')}</div></fieldset>`;}).join('')}</div>
+   <p class="small" style="margin:12px 0 0"><b id="cpInfo">${info}</b></p><p class="err" id="cpErr" hidden></p>
+   <div class="btns" style="margin-top:12px"><button class="btn pri" id="cpSort" ${f.ids.length<2?'disabled':''}>Sortear chave</button><button class="btn ghost" id="cpCanc">Cancelar</button></div></div>`;
+}
+function bindCopas(){
+  document.querySelectorAll('[data-copa]').forEach(b=>b.onclick=()=>{ui.copa=b.dataset.copa;ui.decide=null;ui.excluir=null;render();});
+  const nc=$('#novaCopa');if(nc)nc.onclick=()=>{const d=new Date();ui.novaCopa={nome:'',inicio:d.toISOString().slice(0,7),ids:[]};render();};
+  const f=ui.novaCopa;
+  if(f){
+    const keep=()=>{const n=$('#cpNome'),i=$('#cpIni');if(n)f.nome=n.value;if(i)f.inicio=i.value||f.inicio;};
+    document.querySelectorAll('[data-cpid]').forEach(c=>c.onchange=()=>{keep();const id=c.dataset.cpid;f.ids=c.checked?[...f.ids,id]:f.ids.filter(x=>x!==id);render();});
+    document.querySelectorAll('[data-cpall]').forEach(b=>b.onclick=()=>{keep();const L=S.atiradores.filter(a=>a.ativo&&a.serie===b.dataset.cpall).map(a=>a.id),all=L.every(id=>f.ids.includes(id));f.ids=all?f.ids.filter(x=>!L.includes(x)):[...new Set([...f.ids,...L])];render();});
+    const cc=$('#cpCanc');if(cc)cc.onclick=()=>{ui.novaCopa=null;render();};
+    const so=$('#cpSort');if(so)so.onclick=()=>{keep();if(!f.nome.trim()){const e=$('#cpErr');e.textContent='Dê um nome à copa.';e.hidden=false;return;}f.prev=sortearChave(f.ids);render();};
+    const rs=$('#cpResort');if(rs)rs.onclick=()=>{f.prev=sortearChave(f.ids);render();};
+    const vt=$('#cpVolta');if(vt)vt.onclick=()=>{f.prev=null;render();};
+    const cf=$('#cpConf');if(cf)cf.onclick=async()=>{cf.disabled=true;const id=slug(f.nome)+'-'+Date.now().toString(36);
+      const c={id,nome:f.nome.trim(),inicio:f.inicio,participantes:f.prev.participantes,ranking:f.prev.ranking,decisoes:{},status:'ativa',criado_em:new Date().toISOString()};
+      try{await Store.upsert('copas',[c]);ui.novaCopa=null;ui.copa=id;toast('Copa publicada');render();}catch(e){cf.disabled=false;toast('Erro: '+e.message);}};
+  }
+  const c=S.copas.find(x=>x.id===ui.copa);if(!c)return;
+  document.querySelectorAll('[data-decide]').forEach(b=>b.onclick=()=>{ui.decide=c.id+'|'+b.dataset.decide;render();});
+  document.querySelectorAll('[data-dec]').forEach(b=>b.onclick=async()=>{const v=b.dataset.dec,key=ui.decide.split('|')[1];if(v==='__x'){ui.decide=null;render();return;}
+    const dec={...c.decisoes};if(v)dec[key]=v;else delete dec[key];
+    try{await Store.upsert('copas',[{...c,decisoes:dec}]);ui.decide=null;toast(v?'Vencedor definido: '+nomeAt(v):'Duelo voltou ao cálculo automático');render();}catch(e){toast('Erro: '+e.message);}});
+  const ex=$('#excCopa');if(ex)ex.onclick=()=>{ui.excluir=c.id;render();};
+  const en=$('#excNao');if(en)en.onclick=()=>{ui.excluir=null;render();};
+  const es=$('#excSim');if(es)es.onclick=async()=>{es.disabled=true;try{await Store.upsert('copas',[{...c,status:'excluida'}]);ui.excluir=null;ui.copa=null;toast('Copa excluída');render();}catch(e){es.disabled=false;toast('Erro: '+e.message);}};
+}
+function vEntrar(){
+  return `<section class="view"><div class="panel login"><header><h2>Área do administrador</h2></header>
+  <p class="muted small" style="margin-top:0">Lançar resultados, cadastrar treinos, importar planilhas e alterar ajustes é restrito aos administradores. A consulta do ranking é aberta.</p>
+  <form id="fLogin" class="grid2" style="grid-template-columns:1fr" novalidate>
+   <div class="field"><label for="lEmail">E-mail</label><input type="text" id="lEmail" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+   <div class="field"><label for="lPin">PIN</label><input type="text" id="lPin" inputmode="numeric" autocomplete="current-password" style="-webkit-text-security:disc"></div>
+   <p class="err" id="lErr" hidden style="margin:0"></p>
+   <div class="btns"><button class="btn pri" id="lBtn" type="submit">Entrar</button><a class="btn ghost" href="#ranking" style="text-decoration:none">Voltar ao ranking</a></div>
+  </form>
+  <p class="note" style="margin:14px 0 0">Esqueceu o PIN? Peça a outro administrador para redefinir em Ajustes, ou o responsável pela planilha usa o menu <b>CCT › Definir administrador</b>.</p></div></section>`;
+}
+function adminPanel(){
+  if(AUTH.demo)return `<div class="panel"><header><h3>Administradores</h3></header><p class="muted small" style="margin:0">No modo demonstração não há controle de acesso. No Google Planilhas, a consulta é aberta e só quem estiver cadastrado aqui, com e-mail e PIN, consegue lançar e alterar dados.</p></div>`;
+  const me=AUTH.email;
+  let lista='<p class="muted small">Carregando…</p>';
+  if(ADMS){lista=`<div class="adm-list"><div class="adm-row"><span><b>Responsável pela planilha</b><br><span class="who-e">${esc(ADMS.dono)}</span></span><span class="sp"><span class="tag">entra direto pelo link do Apps Script</span></span></div>`+
+    (ADMS.lista.length?ADMS.lista.map(a=>`<div class="adm-row"><span><b>${esc(a.nome||'—')}</b>${a.email===me?' <span class="tag">você</span>':''}<br><span class="who-e">${esc(a.email)}</span></span><span class="sp">${a.ativo?'':'<span class="status dn">inativo</span>'}<button class="btn sm" data-admpin="${esc(a.email)}">Redefinir PIN</button>${a.email===me?'':`<button class="btn sm" data-admat="${esc(a.email)}" data-v="${a.ativo?'0':'1'}">${a.ativo?'Desativar':'Reativar'}</button><button class="btn sm ghost" data-admrm="${esc(a.email)}">Remover</button>`}</span></div>`).join(''):'<p class="muted small" style="margin:0">Nenhum outro administrador cadastrado.</p>')+'</div>';}
+  const e=ADMEDIT;
+  const form=e?(e.confirmRm?`<div class="panel" style="margin-top:12px;background:var(--paper)"><p style="margin-top:0">Remover <b>${esc(e.email)}</b> da lista de administradores?</p><div class="btns"><button class="btn pri" id="aRmSim">Remover</button><button class="btn ghost" id="aCanc">Cancelar</button></div></div>`:
+   `<div class="grid2" style="margin-top:14px">${e.novo?`<div class="field"><label for="aEmail">E-mail</label><input type="text" id="aEmail" inputmode="email" autocapitalize="none" spellcheck="false"></div><div class="field"><label for="aNome">Nome</label><input type="text" id="aNome"></div>`:`<div class="field"><label>E-mail</label><div class="who-e" style="padding:9px 0">${esc(e.email)}</div></div>`}<div class="field"><label for="aPin">${e.novo?'PIN':'Novo PIN'} (6 a 12 números)</label><input type="text" id="aPin" inputmode="numeric" style="-webkit-text-security:disc"></div></div><p class="err" id="aErr" hidden></p><div class="btns" style="margin-top:12px"><button class="btn pri" id="aSalvar">${e.novo?'Cadastrar administrador':'Salvar novo PIN'}</button><button class="btn ghost" id="aCanc">Cancelar</button></div>`):
+   `<div class="btns" style="margin-top:12px"><button class="btn" id="aNovo">Adicionar administrador</button></div>`;
+  return `<div class="panel"><header><h3>Administradores</h3><span class="sp who small muted">Conectado como <b class="mono">${esc(me)}</b><button class="btn sm ghost" id="sair">Sair</button></span></header>${lista}${form}<p class="note" style="margin:12px 0 0">O PIN fica guardado só como código cifrado na planilha. A entrada funciona com qualquer e-mail, inclusive Gmail pessoal, e a sessão dura 6 horas no aparelho.</p></div>`;
+}
+let FECH=false;
+function fechamentoHtml(){
+  const mv=[];SERIES.forEach(s=>{const {rows}=ranking(s);rows.forEach(r=>{if(r.zona==='up')mv.push([r.a,s,prevS(s)]);if(r.zona==='dn')mv.push([r.a,s,nextS(s)]);});});
+  if(!mv.length)return '<p class="muted small">Nenhuma movimentação prevista.</p>';
+  return `<div class="fund">${mv.map(([a,de,para])=>`<span class="tag">${esc(a.nome)} · ${de} → ${para}</span>`).join('')}</div><div class="btns" style="margin-top:12px">${FECH?`<button class="btn pri" id="fechSim">Confirmar ${mv.length} movimentações</button><button class="btn ghost" id="fechNao">Cancelar</button>`:`<button class="btn" id="fech">Aplicar acesso e descenso…</button>`}</div>`;
+}
+
+/* ---------- importação ---------- */
+async function lerArquivo(f){
+  ui.imp=null;
+  try{
+    if(/\.pdf$/i.test(f.name)){
+      if(!window.pdfjsLib){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js');await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';}
+      const doc=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+      const linhas=[];
+      for(let p=1;p<=doc.numPages;p++){const tc=await(await doc.getPage(p)).getTextContent();const rows=[];tc.items.forEach(it=>{const s=it.str.trim();if(!s)return;const y=it.transform[5];let r=rows.find(r=>Math.abs(r.y-y)<=3);if(!r){r={y,it:[]};rows.push(r);}r.it.push({x:it.transform[4],s});});rows.sort((a,b)=>b.y-a.y).forEach(r=>linhas.push(r.it.sort((a,b)=>a.x-b.x)));}
+      ui.imp=parsePdfTreino(linhas,f.name);
+    }else{
+      if(!window.XLSX)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+      const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
+      const aoa=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+      ui.imp=parseAoa(aoa,f.name);
+    }
+  }catch(e){ui.imp={erro:'Não consegui ler o arquivo: '+(e.message||e)};}
+  render();
+}
+function metaFromText(txt,mesDefault){
+  const m={mes:mesDefault,serie:ui.serie,tipo:'Tiro Defensivo',alvo:'',distancia:'',tempo:'',angulo:'',empunhadura:''};
+  const T=norm(txt);
+  const mm=T.match(/(JANEIRO|FEVEREIRO|MARCO|ABRIL|MAIO|JUNHO|JULHO|AGOSTO|SETEMBRO|OUTUBRO|NOVEMBRO|DEZEMBRO)\s*\/?\s*(\d{4})/);
+  if(mm){const i=['JANEIRO','FEVEREIRO','MARCO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'].indexOf(mm[1]);m.mes=mm[2]+'-'+String(i+1).padStart(2,'0');}
+  const a=txt.match(/ALVO\s+([^-\n]+?)\s*-/i);if(a)m.alvo=a[1].trim().replace(/\(([^)]+)\)/,(x,y)=>'('+y.charAt(0)+y.slice(1).toLowerCase()+')');
+  const t=T.match(/(\d+)\s*S\b/);if(t)m.tempo=+t[1];
+  const d=T.match(/(\d+(?:[.,]\d+)?)\s*M\b/);if(d)m.distancia=+d[1].replace(',','.');
+  const g=txt.match(/(\d+)\s*[º°]/);if(g)m.angulo=g[1]+'º';
+  if(/EMP\.?\s*DUPLA/.test(T))m.empunhadura='Dupla';else if(/MAO FRACA/.test(T))m.empunhadura='Mão fraca';else if(/MAO FORTE/.test(T))m.empunhadura='Mão forte';
+  const s=T.match(/\bSERIE\s+([ABCD])\b/)||T.match(/[_\s-]([ABCD])\.PDF$/);if(s)m.serie=s[1];
+  return m;
+}
+function parsePdfTreino(L,arquivo){
+  const hi=L.findIndex(r=>r.some(i=>/^nome$/i.test(i.s))&&r.some(i=>/^total$/i.test(i.s)));
+  if(hi<0)throw new Error('não encontrei o cabeçalho com “Nome” e “Total”. Este leitor de PDF aceita a planilha de treino; para o ranking geral use o arquivo Excel.');
+  const H=L[hi],hx=k=>(H.find(i=>i.s.toUpperCase()===k)||{}).x;
+  const zc=ZONAS.map(z=>({z,x:hx(String(z))})).filter(o=>o.x!=null);
+  const xX=hx('X'),xArma=hx('ARMA'),xTot=hx('TOTAL'),xNome=hx('NOME');
+  const meta=metaFromText(L.slice(0,hi).map(r=>r.map(i=>i.s).join(' ')).join('\n')+' '+arquivo,ui.serie&&new Date().toISOString().slice(0,7));
+  const rows=[];
+  L.slice(hi+1).forEach(r=>{
+    const nomeIt=r.find(i=>/[A-ZÀ-Ú]{2,}/i.test(i.s)&&(xArma==null||i.x<xArma-10));if(!nomeIt)return;
+    const armaIt=xArma!=null?r.find(i=>i!==nomeIt&&i.x>=xArma-25&&i.x<(xX??xArma+60)-15):null;
+    const nums=r.filter(i=>i!==nomeIt&&i!==armaIt&&i.x>nomeIt.x&&/^\d+$/.test(i.s)).map(i=>({x:i.x,v:+i.s}));
+    const tot=xTot!=null?nums.filter(n=>n.x>=xTot-15).pop():null;
+    const xv=xX!=null?nums.find(n=>Math.abs(n.x-xX)<=15):null;
+    const acc={};zc.forEach(o=>acc[o.z]={c:null,p:null});
+    nums.filter(n=>n!==tot&&n!==xv).forEach(n=>{let b=null,bd=1e9;zc.forEach(o=>{const d=Math.abs(n.x-(o.x+12));if(d<bd){bd=d;b=o;}});if(b){if(n.x<b.x)acc[b.z].c=n.v;else acc[b.z].p=n.v;}});
+    const z={};zc.forEach(o=>{const a=acc[o.z];z[o.z]=a.c!=null?a.c:(a.p!=null?Math.round(a.p/o.z):0);});
+    rows.push({nome:nomeIt.s.trim(),arma:armaIt?armaIt.s:'',x:xv?xv.v:0,z,total:tot?tot.v:null});
+  });
+  if(!rows.length)throw new Error('não encontrei linhas de atiradores.');
+  return {tipo:'treino',arquivo,meta,rows};
+}
+function parseAoa(A,arquivo){
+  const hi=A.findIndex(r=>r.some(c=>/^nome$/i.test(String(c).trim())));
+  if(hi<0)throw new Error('não encontrei a coluna “Nome”.');
+  const H=A[hi].map(c=>norm(c));
+  const cN=H.indexOf('NOME');
+  const mi=H.map((h,i)=>{const k=['JAN','FEV','MAR','ABR','MAIO','JUN','JUL','AGO','SET','OUT','NOV','DEZ'].indexOf(h==='MAI'?'MAIO':h);return k>=0?[k+1,i]:null;}).filter(Boolean);
+  const titulo=A.slice(0,hi).map(r=>r.join(' ')).join('\n');
+  if(mi.length>=3){
+    const ano=(titulo.match(/\b(20\d{2})\b/)||[])[1]||(titulo.match(/\/(\d{2})\b/)||[])[1]&&'20'+titulo.match(/\/(\d{2})\b/)[1]||S.config.ciclo;
+    const sr=(norm(titulo).match(/RANKING\s+([ABCD])\b/)||[])[1]||ui.serie;
+    const rows=[];const ms=new Set();
+    A.slice(hi+1).forEach(r=>{const nome=String(r[cN]||'').trim();if(!nome||!/[A-Za-zÀ-ú]/.test(nome))return;const m={};
+      mi.forEach(([mes,i])=>{const v=r[i];if(v===''||v==null||isNaN(+v))return;const xv=H[i-1]==='X'?+r[i-1]||0:0;m[mes]={pts:+v,x:xv};ms.add(mes);});rows.push({nome,m});});
+    return {tipo:'ranking',arquivo,serie:sr,ano:+ano,rows,meses:[...ms].sort((a,b)=>a-b)};
+  }
+  const col=k=>H.indexOf(k);
+  const cA=col('ARMA'),cX=col('X'),cT=col('TOTAL');
+  const zcol=ZONAS.map(z=>[z,col(String(z))]);
+  const rows=[];
+  A.slice(hi+1).forEach(r=>{const nome=String(r[cN]||'').trim();if(!nome||!/[A-Za-zÀ-ú]/.test(nome))return;const z={};
+    zcol.forEach(([zz,i])=>{if(i<0){z[zz]=0;return;}const c=r[i],p=r[i+1];z[zz]=(c!==''&&!isNaN(+c))?+c:((p!==''&&!isNaN(+p))?Math.round(+p/zz):0);});
+    rows.push({nome,arma:cA>=0?String(r[cA]).trim():'',x:cX>=0?+r[cX]||0:0,z,total:cT>=0&&r[cT]!==''?+r[cT]:null});});
+  return {tipo:'treino',arquivo,meta:metaFromText(titulo+' '+arquivo,new Date().toISOString().slice(0,7)),rows};
+}
+async function gravarImport(){
+  const I=ui.imp,novos=[],res=[];
+  const serie=$('#iSerie').value;
+  const resolve=r=>{if(r.map==='__ign')return null;if(r.map!=='__novo')return r.map;let id=slug(r.nome),k=2;while(BYID[id]||novos.find(n=>n.id===id))id=slug(r.nome)+'-'+k++;novos.push({id,nome:r.nome.toUpperCase(),serie,arma:r.arma||'',ativo:true});return id;};
+  if(I.tipo==='treino'){
+    const mes=$('#iMes').value,id=mes+'-'+serie,old=S.treinos.find(t=>t.id===id);
+    const t={id,mes,serie,tipo:$('#iTipo').value,alvo:$('#iAlvo').value,distancia:$('#iDist').value,tempo:$('#iTempo').value,angulo:$('#iAng').value,empunhadura:$('#iEmp').value,disparos:old?old.disparos:10,max:old?old.max:100,fundamentos:old?old.fundamentos:[],obs:old?old.obs:'Importado de '+I.arquivo};
+    I.rows.forEach(r=>{const aid=resolve(r);if(!aid)return;const o={treino:id,atirador:aid,arma:r.arma,x:r.x,pts:0};ZONAS.forEach(z=>{o['z'+z]=r.z[z]||0;o.pts+=z*(r.z[z]||0);});res.push(o);});
+    if(novos.length)await Store.upsert('atiradores',novos);
+    await Store.upsert('treinos',[t]);await Store.upsert('resultados',res);
+    ui.serie=serie;ui.treino=id;
+  }else{
+    const ano=$('#iAno').value,ts=[];
+    I.meses.forEach(m=>{const id=`${ano}-${String(m).padStart(2,'0')}-${serie}`;if(!S.treinos.find(t=>t.id===id))ts.push({id,mes:id.slice(0,7),serie,tipo:'Tiro Defensivo',alvo:'',distancia:'',tempo:'',angulo:'',empunhadura:'',disparos:10,max:100,fundamentos:[],obs:'Importado do ranking geral'});});
+    I.rows.forEach(r=>{const aid=resolve(r);if(!aid)return;Object.entries(r.m).forEach(([m,v])=>res.push({treino:`${ano}-${String(m).padStart(2,'0')}-${serie}`,atirador:aid,arma:'',x:v.x,z10:null,z9:null,z8:null,z7:null,z6:null,pts:v.pts}));});
+    if(novos.length)await Store.upsert('atiradores',novos);
+    if(ts.length)await Store.upsert('treinos',ts);await Store.upsert('resultados',res);
+    ui.serie=serie;
+  }
+  ui.imp=null;toast(`${res.length} resultados gravados`);location.hash='#ranking';render();
+}
+
+/* ---------- render e eventos ---------- */
+function route(){return (location.hash||'#ranking').slice(1);}
+function render(){
+  for(const k in STC)delete STC[k];
+  $('#brandMark').innerHTML=logoMark();$('#brandName').textContent=S.config.nome||'CCT';$('#cycleLbl').textContent=S.config.ciclo;$('#modeLbl').textContent=OFFLINE?'Sem conexão':GASRUN?'Google Planilhas':API_URL?'App':'Demonstração';
+  let r=route();
+  document.querySelectorAll('nav.tabs [data-adm]').forEach(a=>a.hidden=!AUTH.admin);$('#navEntrar').hidden=AUTH.admin;
+  if(ADM_ROUTES.includes(r)&&!AUTH.admin){ui.depoisEntrar=r;r='entrar';}
+  if(r==='entrar'&&AUTH.admin)r='ajustes';
+  document.querySelectorAll('nav.tabs a').forEach(a=>a.setAttribute('aria-current',a.getAttribute('href')==='#'+r?'page':'false'));
+  const V={ranking:vRanking,mapa:vMapa,atirador:vAtirador,lancar:vLancar,treinos:vTreinos,importar:vImportar,ajustes:vAjustes,entrar:vEntrar,copas:vCopas}[r]||vRanking;
+  $('#app').innerHTML=(OFFLINE?`<div class="offline" style="margin-bottom:16px">Sem conexão. Mostrando os dados salvos em ${new Date(OFFLINE).toLocaleString('pt-BR')}. Lançamentos ficam indisponíveis até a conexão voltar.</div>`:'')+V();bind(r);
+}
+function bind(r){
+  bindSerie();
+  if(r==='copas')bindCopas();
+  document.querySelectorAll('[data-at]').forEach(tr=>tr.onclick=()=>{if(tr.dataset.ats)ui.serie=tr.dataset.ats;ui.atirador=tr.dataset.at;location.hash='#atirador';});
+  const sa=$('#selAt');if(sa)sa.onchange=()=>{ui.atirador=sa.value;render();};
+  if(r==='lancar'){
+    const sT=$('#selT');if(sT)sT.onchange=()=>{ui.treino=sT.value;ui.edit=null;render();};
+    document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{const t=S.treinos.find(x=>x.id===ui.treino),a=BYID[b.dataset.pick];ui.edit=a.id;const c=(RES[t.id]||{})[a.id];ui.draft=c?{...c,z10:c.z10??Math.round(c.pts/10),z9:c.z9??0,z8:c.z8??0,z7:c.z7??0,z6:c.z6??0}:blankRes(t,a);render();if(innerWidth<900)$('#editor').scrollIntoView({behavior:'smooth',block:'start'});});
+    bindEditor();
+  }
+  if(r==='treinos'){
+    $('#novoT').onclick=()=>{const d=new Date();ui.editTreino={id:'',mes:d.toISOString().slice(0,7),serie:ui.serie,tipo:'Tiro Defensivo',alvo:'A4 (Moreira)',distancia:'',tempo:'',angulo:'',empunhadura:'Dupla',disparos:10,max:100,fundamentos:[],obs:''};render();};
+    document.querySelectorAll('[data-edt]').forEach(b=>b.onclick=()=>{ui.editTreino=JSON.parse(JSON.stringify(S.treinos.find(t=>t.id===b.dataset.edt)));render();scrollTo({top:0,behavior:'smooth'});});
+    if(ui.editTreino){
+      document.querySelectorAll('#tFund button').forEach(b=>b.onclick=()=>b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true'));
+      $('#cancT').onclick=()=>{ui.editTreino=null;render();};
+      $('#salvarT').onclick=async()=>{const e=ui.editTreino,mes=$('#tMes').value,serie=$('#tSerie').value;if(!mes){toast('Informe o mês do treino');return;}
+        const t={...e,id:e.id||mes+'-'+serie,mes,serie,tipo:$('#tTipo').value,alvo:$('#tAlvo').value,distancia:$('#tDist').value,tempo:$('#tTempo').value,angulo:$('#tAng').value,empunhadura:$('#tEmp').value,disparos:+$('#tDisp').value||10,max:(+$('#tDisp').value||10)*10,obs:$('#tObs').value,fundamentos:[...document.querySelectorAll('#tFund button')].filter(b=>b.getAttribute('aria-pressed')==='true').map(b=>b.textContent)};
+        try{await Store.upsert('treinos',[t]);ui.editTreino=null;ui.serie=serie;toast('Treino salvo');render();}catch(err){toast('Erro ao salvar: '+err.message);}};
+    }
+  }
+  if(r==='importar'){
+    const inp=$('#arq'),dz=$('#drop');inp.onchange=()=>inp.files[0]&&lerArquivo(inp.files[0]);
+    dz.ondragover=e=>{e.preventDefault();dz.classList.add('over');};dz.ondragleave=()=>dz.classList.remove('over');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)lerArquivo(f);};
+    document.querySelectorAll('[data-map]').forEach(s=>s.onchange=()=>{ui.imp.rows[+s.dataset.map].map=s.value;});
+    const c=$('#confImp');if(c)c.onclick=async()=>{c.disabled=true;try{await gravarImport();}catch(e){c.disabled=false;toast('Erro: '+e.message);}};
+    const d=$('#descImp');if(d)d.onclick=()=>{ui.imp=null;render();};
+  }
+  if(r==='entrar'){
+    $('#fLogin').onsubmit=async ev=>{ev.preventDefault();const b=$('#lBtn'),er=$('#lErr');er.hidden=true;b.disabled=true;b.textContent='Entrando…';
+      try{const q=await gas('api_login',{email:$('#lEmail').value,pin:$('#lPin').value});AUTH=q;tokenSet(q.token);ADMS=null;toast('Bem-vindo, '+(q.nome||q.email));location.hash='#'+(ui.depoisEntrar||'lancar');render();}
+      catch(e){er.textContent=e.message;er.hidden=false;b.disabled=false;b.textContent='Entrar';}};
+  }
+  if(r==='ajustes'&&GAS){
+    if(!ADMS)gas('api_admins',AUTH.token).then(d=>{ADMS=d;if(route()==='ajustes')render();}).catch(e=>toast(e.message));
+    const sa=$('#sair');if(sa)sa.onclick=async()=>{try{await gas('api_logout',AUTH.token);}catch(e){}AUTH={admin:false};tokenSet('');ADMS=null;ADMEDIT=null;toast('Sessão encerrada');location.hash='#ranking';render();};
+    const nv=$('#aNovo');if(nv)nv.onclick=()=>{ADMEDIT={novo:true};render();};
+    const cn=$('#aCanc');if(cn)cn.onclick=()=>{ADMEDIT=null;render();};
+    document.querySelectorAll('[data-admpin]').forEach(b=>b.onclick=()=>{ADMEDIT={email:b.dataset.admpin};render();});
+    document.querySelectorAll('[data-admrm]').forEach(b=>b.onclick=()=>{ADMEDIT={email:b.dataset.admrm,confirmRm:true};render();});
+    document.querySelectorAll('[data-admat]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await gas('api_admin_salvar',{token:AUTH.token,email:b.dataset.admat,ativo:b.dataset.v==='1'});ADMS=null;toast('Acesso atualizado');render();}catch(e){b.disabled=false;toast(e.message);}});
+    const rm=$('#aRmSim');if(rm)rm.onclick=async()=>{rm.disabled=true;try{await gas('api_admin_remover',{token:AUTH.token,email:ADMEDIT.email});toast(ADMEDIT.email+' removido');ADMEDIT=null;ADMS=null;render();}catch(e){rm.disabled=false;toast(e.message);}};
+    const sv=$('#aSalvar');if(sv)sv.onclick=async()=>{const er=$('#aErr');er.hidden=true;const pin=$('#aPin').value.trim();
+      const p=ADMEDIT.novo?{email:$('#aEmail').value.trim(),nome:$('#aNome').value.trim(),pin}:{email:ADMEDIT.email,pin};
+      if(!/^\d{6,12}$/.test(pin)){er.textContent='O PIN deve ter de 6 a 12 números.';er.hidden=false;return;}
+      sv.disabled=true;try{await gas('api_admin_salvar',{token:AUTH.token,...p});toast(ADMEDIT.novo?'Administrador cadastrado':'PIN redefinido');ADMEDIT=null;ADMS=null;render();}catch(e){sv.disabled=false;er.textContent=e.message;er.hidden=false;}};
+  }
+  if(r==='ajustes'){
+    let logo=S.config.logo;
+    $('#cLogo').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const k=Math.min(1,256/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);logo=cv.toDataURL('image/png');document.querySelector('.panel .brand-mark').innerHTML=`<img src="${logo}" alt="">`;};img.src=rd.result;};rd.readAsDataURL(f);};
+    $('#salvarC').onclick=async()=>{try{await Store.saveConfig({nome:$('#cNome').value.trim()||'CCT',ciclo:$('#cCiclo').value,sobem:+$('#cSobem').value,descem:+$('#cDescem').value,desempate:$('#cDes').value,logo});toast('Ajustes salvos');render();}catch(e){toast('Erro: '+e.message);}};
+    $('#addAt').onclick=async()=>{const n=$('#nNome').value.trim();if(!n){toast('Informe o nome de guerra');return;}let id=slug(n),k=2;while(BYID[id])id=slug(n)+'-'+k++;await Store.upsert('atiradores',[{id,nome:n.toUpperCase(),serie:$('#nSerie').value,arma:$('#nArma').value.trim(),ativo:true}]);toast(n.toUpperCase()+' cadastrado na Série '+$('#nSerie').value);render();};
+    const f=$('#fech');if(f)f.onclick=()=>{FECH=true;render();};
+    const fn=$('#fechNao');if(fn)fn.onclick=()=>{FECH=false;render();};
+    const fs=$('#fechSim');if(fs)fs.onclick=async()=>{fs.disabled=true;const ciclo=String(S.config.ciclo),novo={};
+      SERIES.forEach(s=>{const {rows}=ranking(s);rows.forEach(r=>{novo[r.a.id]=r.zona==='up'?prevS(s):r.zona==='dn'?nextS(s):s;});});
+      const hist=a=>{const v=String(a.historico||'').split(';').map(x=>x.trim()).filter(x=>x&&!x.startsWith(ciclo+':'));v.push(ciclo+':'+serieDe(a.id));return v.join(';');};
+      const rows=S.atiradores.filter(a=>novo[a.id]).map(a=>({...a,historico:hist(a),serie:novo[a.id]}));
+      const n=rows.filter(r=>r.serie!==BYID[r.id].serie).length;
+      try{await Store.upsert('atiradores',rows);FECH=false;toast(n+' atiradores movimentados · séries de '+ciclo+' registradas');render();}catch(e){fs.disabled=false;toast('Erro: '+e.message);}};
+    const rs=$('#resetD');if(rs)rs.onclick=async()=>{await Store.reset();toast('Dados originais restaurados');render();};
+  }
+}
+function bindEditor(){
+  const t=S.treinos.find(x=>x.id===ui.treino);
+  document.querySelectorAll('[data-inc]').forEach(b=>b.onclick=()=>{const k=b.dataset.inc;ui.draft[k]=(ui.draft[k]||0)+1;if(k==='x'&&ui.draft.x>(ui.draft.z10||0))ui.draft.z10=ui.draft.x;$('#editor').innerHTML=editorHtml(t);bindEditor();});
+  document.querySelectorAll('[data-dec]').forEach(b=>b.onclick=()=>{const k=b.dataset.dec;ui.draft[k]=Math.max(0,(ui.draft[k]||0)-1);$('#editor').innerHTML=editorHtml(t);bindEditor();});
+  const ar=$('#arma');if(ar)ar.oninput=()=>ui.draft.arma=ar.value;
+  const cc=$('#cancelar');if(cc)cc.onclick=()=>{ui.edit=null;render();};
+  const sv=$('#salvar');if(sv)sv.onclick=async()=>{sv.disabled=true;const d=ui.draft;d.pts=ZONAS.reduce((s,z)=>s+z*(d['z'+z]||0),0);try{await Store.upsert('resultados',[{...d}]);const nm=BYID[d.atirador].nome;
+    const ats=S.atiradores.filter(a=>a.ativo&&serieDe(a.id)===ui.serie).sort((a,b)=>a.nome.localeCompare(b.nome));const nx=ats.find(a=>!(RES[t.id]||{})[a.id]);
+    if(nx){ui.edit=nx.id;ui.draft=blankRes(t,nx);}else ui.edit=null;toast(`${nm}: ${d.pts} pontos salvos`);render();}catch(e){sv.disabled=false;toast('Erro ao salvar: '+e.message);}};
+}
+window.addEventListener('hashchange',render);
+if(GASRUN&&google.script.url)google.script.url.getLocation(l=>{if(l&&l.parameter&&l.parameter.page==='admin'&&!location.hash){location.hash='#entrar';}});
+Store.load().then(render).catch(e=>{$('#app').innerHTML=`<div class="panel"><p class="err">Não foi possível carregar os dados: ${esc(e.message||e)}</p></div>`;});
+</script>
+
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</body>
+</html>
